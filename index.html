@@ -32,6 +32,120 @@
             overflow-x: hidden;
         }
 
+        /* Auth Pages */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+        }
+
+        .auth-box {
+            background-color: var(--dark-light);
+            border-radius: var(--radius);
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: var(--shadow);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--light);
+            margin-bottom: 10px;
+        }
+
+        .auth-logo i {
+            color: var(--primary);
+        }
+
+        .auth-subtitle {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            padding: 12px;
+            border-radius: var(--radius);
+            border: none;
+            background-color: var(--dark);
+            color: var(--light);
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+
+        .auth-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+
+        .auth-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .auth-switch a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        /* Main App */
+        .app-container {
+            display: none;
+        }
+
         /* Header Styles */
         header {
             background-color: var(--dark);
@@ -144,6 +258,55 @@
             background-color: var(--primary-dark);
         }
 
+        .user-menu {
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--dark-light);
+            border-radius: var(--radius);
+            padding: 10px 0;
+            min-width: 180px;
+            box-shadow: var(--shadow);
+            display: none;
+            z-index: 100;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--light);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
         /* Main Content */
         .container {
             display: flex;
@@ -237,9 +400,38 @@
             background-color: var(--dark);
         }
 
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: var(--dark-light);
+        }
+
+        .empty-state h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--light);
+        }
+
+        .empty-state p {
+            margin-bottom: 30px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
         /* Video Grid */
         .section-title {
             margin: 0 0 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .section-title h2 {
@@ -793,288 +985,301 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <button class="mobile-menu-btn" id="mobileMenuBtn">
-            <i class="fas fa-bars"></i>
-        </button>
-        
-        <div class="logo">
-            <i class="fas fa-play-circle"></i>
-            <span>VidFlow</span>
-        </div>
-        
-        <div class="search-bar">
-            <input type="text" placeholder="Поиск видео...">
-            <button><i class="fas fa-search"></i></button>
-        </div>
-        
-        <div class="user-actions">
-            <button><i class="fas fa-video"></i></button>
-            <button><i class="fas fa-bell"></i></button>
-            <button class="upload-btn" id="openUploadModal">
-                <i class="fas fa-upload"></i> Загрузить
-            </button>
-            <button><i class="fas fa-user-circle"></i></button>
-        </div>
-    </header>
-    
-    <!-- Main Content -->
-    <div class="container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <ul class="sidebar-menu">
-                <li class="active"><i class="fas fa-home"></i> Главная</li>
-                <li><i class="fas fa-fire"></i> Популярное</li>
-                <li><i class="fas fa-history"></i> История</li>
-                <li><i class="fas fa-clock"></i> Смотреть позже</li>
-                <li><i class="fas fa-thumbs-up"></i> Понравившиеся</li>
-                <li><i class="fas fa-download"></i> Загруженные</li>
-            </ul>
-            
-            <div class="subscriptions">
-                <h3>ПОДПИСКИ</h3>
-                <div class="channel">
-                    <div class="channel-avatar">ИП</div>
-                    <span>Иван Петров</span>
+    <!-- Auth Pages -->
+    <div id="authContainer" class="auth-container">
+        <!-- Login Form -->
+        <div id="loginForm" class="auth-box">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <i class="fas fa-play-circle"></i>
+                    <span>VidFlow</span>
                 </div>
-                <div class="channel">
-                    <div class="channel-avatar">КТ</div>
-                    <span>Кино и ТВ</span>
-                </div>
-                <div class="channel">
-                    <div class="channel-avatar">ГИ</div>
-                    <span>Гейминг Индустрия</span>
-                </div>
-                <div class="channel">
-                    <div class="channel-avatar">ММ</div>
-                    <span>Музыкальные Клипы</span>
-                </div>
+                <p class="auth-subtitle">Войдите в свой аккаунт</p>
             </div>
-        </aside>
-        
-        <!-- Video List Page -->
-        <main class="main-content" id="videoListPage">
-            <div class="section-title">
-                <h2>Рекомендуемые видео</h2>
-            </div>
-            
-            <div class="video-grid" id="videoGrid">
-                <!-- Video cards will be generated by JavaScript -->
-            </div>
-        </main>
-        
-        <!-- Video Player Page -->
-        <div class="main-content video-page" id="videoPage">
-            <button class="back-btn" id="backBtn">
-                <i class="fas fa-arrow-left"></i> Назад к видео
-            </button>
-            
-            <div class="video-player-container">
-                <div class="video-player" id="videoPlayer">
-                    <video id="mainVideo">
-                        Ваш браузер не поддерживает видео тег.
-                    </video>
-                    <div class="player-controls">
-                        <div class="progress-bar">
-                            <div class="progress"></div>
-                        </div>
-                        <div class="control-buttons">
-                            <div class="left-controls">
-                                <button class="control-btn" id="playPauseBtn"><i class="fas fa-play"></i></button>
-                                <button class="control-btn" id="muteBtn"><i class="fas fa-volume-up"></i></button>
-                                <div class="volume-control">
-                                    <div class="volume-slider">
-                                        <div class="volume-level"></div>
-                                    </div>
-                                </div>
-                                <div class="time-display">0:00 / 0:00</div>
-                            </div>
-                            <div class="right-controls">
-                                <button class="control-btn" id="fullscreenBtn"><i class="fas fa-expand"></i></button>
-                            </div>
-                        </div>
-                    </div>
+            <form class="auth-form" id="loginAuthForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required>
                 </div>
-                
-                <div class="video-info">
-                    <h1 class="video-title" id="videoPageTitle">Название видео</h1>
-                    <div class="video-stats">
-                        <span id="videoViews">0 просмотров</span>
-                        <span id="videoDate">Дата</span>
-                    </div>
-                    
-                    <div class="video-actions">
-                        <button class="action-btn"><i class="fas fa-thumbs-up"></i> <span id="likeCount">0</span></button>
-                        <button class="action-btn"><i class="fas fa-thumbs-down"></i> <span id="dislikeCount">0</span></button>
-                        <button class="action-btn"><i class="fas fa-share"></i> Поделиться</button>
-                        <button class="action-btn"><i class="fas fa-save"></i> Сохранить</button>
-                    </div>
-                    
-                    <div class="channel-info">
-                        <div class="channel-avatar large" id="channelAvatar">ТХ</div>
-                        <div class="channel-details">
-                            <h4 id="channelName">Технологии Хаб</h4>
-                            <p id="channelSubs">0 подписчиков</p>
-                        </div>
-                        <button class="subscribe-btn">Подписаться</button>
-                    </div>
+                <div class="form-group">
+                    <label for="loginPassword">Пароль</label>
+                    <input type="password" id="loginPassword" required>
                 </div>
+                <button type="submit" class="auth-btn">Войти</button>
+            </form>
+            <div class="auth-switch">
+                Нет аккаунта? <a href="#" id="showRegister">Зарегистрироваться</a>
             </div>
         </div>
-    </div>
-    
-    <!-- Upload Modal -->
-    <div class="modal" id="uploadModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Загрузить видео</h2>
-                <button class="close-btn" id="closeModal">&times;</button>
-            </div>
-            <div class="upload-area" id="uploadArea">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <h3>Перетащите видео файл сюда</h3>
-                <p>или нажмите для выбора файла</p>
-                <input type="file" id="fileInput" accept="video/*" style="display: none;">
-            </div>
-            <div class="form-group">
-                <label for="videoTitle">Название видео</label>
-                <input type="text" id="videoTitle" placeholder="Введите название видео">
-            </div>
-            <div class="form-group">
-                <label for="videoDescription">Описание</label>
-                <textarea id="videoDescription" placeholder="Добавьте описание к вашему видео"></textarea>
-            </div>
-            <button class="submit-btn">Опубликовать видео</button>
-        </div>
-    </div>
-    
-    <!-- Footer -->
-    <footer>
-        <div class="footer-content">
-            <div class="footer-info">
-                <div class="footer-logo">
-                    <i class="fas fa-play-circle"></i> VidFlow
-                </div>
-                <p>Современная платформа для загрузки и просмотра видео</p>
-            </div>
-            
-            <div class="footer-links">
-                <div class="footer-column">
-                    <h4>О нас</h4>
-                    <ul>
-                        <li><a href="#">О проекте</a></li>
-                        <li><a href="#">Контакты</a></li>
-                        <li><a href="#">Партнеры</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-column">
-                    <h4>Поддержка</h4>
-                    <ul>
-                        <li><a href="#">Помощь</a></li>
-                        <li><a href="#">Сообщить о проблеме</a></li>
-                        <li><a href="#">Предложения</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-column">
-                    <h4>Правовая информация</h4>
-                    <ul>
-                        <li><a href="#">Условия использования</a></li>
-                        <li><a href="#">Политика конфиденциальности</a></li>
-                        <li><a href="#">Правила сообщества</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        
-        <div class="copyright">
-            &copy; 2023 VidFlow. Все права защищены.
-        </div>
-    </footer>
-    
-    <script>
-        // Данные видео (в реальном приложении будут загружаться с сервера)
-        const videos = [
-            {
-                id: 1,
-                title: "Как создать современный видеохостинг",
-                channel: "Технологии Хаб",
-                channelAvatar: "ТХ",
-                views: 125000,
-                date: "2 дня назад",
-                duration: "15:42",
-                likes: 245,
-                dislikes: 12,
-                subscribers: "150 тыс."
-            },
-            {
-                id: 2,
-                title: "Лучшие моменты финального матча",
-                channel: "Спорт ТВ",
-                channelAvatar: "СТ",
-                views: 340000,
-                date: "3 недели назад",
-                duration: "10:25",
-                likes: 1200,
-                dislikes: 45,
-                subscribers: "450 тыс."
-            },
-            {
-                id: 3,
-                title: "Приготовление итальянской пиццы дома",
-                channel: "Кулинарный канал",
-                channelAvatar: "КК",
-                views: 180000,
-                date: "5 дней назад",
-                duration: "24:15",
-                likes: 890,
-                dislikes: 23,
-                subscribers: "95 тыс."
-            },
-            {
-                id: 4,
-                title: "JavaScript для начинающих: полный курс",
-                channel: "IT Просто",
-                channelAvatar: "ИТ",
-                views: 890000,
-                date: "2 месяца назад",
-                duration: "32:08",
-                likes: 4500,
-                dislikes: 120,
-                subscribers: "320 тыс."
-            },
-            {
-                id: 5,
-                title: "Обзор нового флагманского смартфона",
-                channel: "Техно Обзор",
-                channelAvatar: "ТО",
-                views: 520000,
-                date: "1 месяц назад",
-                duration: "18:33",
-                likes: 3200,
-                dislikes: 89,
-                subscribers: "210 тыс."
-            },
-            {
-                id: 6,
-                title: "Топ 10 фильмов этого года",
-                channel: "Кино и ТВ",
-                channelAvatar: "КТ",
-                views: 760000,
-                date: "3 недели назад",
-                duration: "22:47",
-                likes: 5400,
-                dislikes: 210,
-                subscribers: "580 тыс."
-            }
-        ];
 
-        // DOM элементы
+        <!-- Register Form -->
+        <div id="registerForm" class="auth-box" style="display: none;">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <i class="fas fa-play-circle"></i>
+                    <span>VidFlow</span>
+                </div>
+                <p class="auth-subtitle">Создайте новый аккаунт</p>
+            </div>
+            <form class="auth-form" id="registerAuthForm">
+                <div class="form-group">
+                    <label for="registerName">Имя пользователя</label>
+                    <input type="text" id="registerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Пароль</label>
+                    <input type="password" id="registerPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerConfirmPassword">Подтвердите пароль</label>
+                    <input type="password" id="registerConfirmPassword" required>
+                </div>
+                <button type="submit" class="auth-btn">Зарегистрироваться</button>
+            </form>
+            <div class="auth-switch">
+                Уже есть аккаунт? <a href="#" id="showLogin">Войти</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="appContainer" class="app-container">
+        <!-- Header -->
+        <header>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="logo">
+                <i class="fas fa-play-circle"></i>
+                <span>VidFlow</span>
+            </div>
+            
+            <div class="search-bar">
+                <input type="text" placeholder="Поиск видео...">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+            
+            <div class="user-actions">
+                <button class="upload-btn" id="openUploadModal">
+                    <i class="fas fa-upload"></i> Загрузить
+                </button>
+                <div class="user-menu">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="dropdown-menu" id="userDropdown">
+                        <a href="#" class="dropdown-item" id="myChannelBtn">
+                            <i class="fas fa-user"></i> Мой канал
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-history"></i> История
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-cog"></i> Настройки
+                        </a>
+                        <div class="dropdown-item" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i> Выйти
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <div class="container">
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <ul class="sidebar-menu">
+                    <li class="active"><i class="fas fa-home"></i> Главная</li>
+                    <li><i class="fas fa-fire"></i> Популярное</li>
+                    <li><i class="fas fa-history"></i> История</li>
+                    <li><i class="fas fa-clock"></i> Смотреть позже</li>
+                    <li><i class="fas fa-thumbs-up"></i> Понравившиеся</li>
+                    <li id="myVideosBtn"><i class="fas fa-video"></i> Мои видео</li>
+                </ul>
+                
+                <div class="subscriptions">
+                    <h3>ПОДПИСКИ</h3>
+                    <div id="subscriptionsList">
+                        <!-- Subscriptions will be loaded here -->
+                    </div>
+                </div>
+            </aside>
+            
+            <!-- Video List Page -->
+            <main class="main-content" id="videoListPage">
+                <div class="section-title">
+                    <h2>Рекомендуемые видео</h2>
+                </div>
+                
+                <div class="video-grid" id="videoGrid">
+                    <!-- Video cards will be generated by JavaScript -->
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <i class="fas fa-video-slash"></i>
+                    <h2>Видео пока нет</h2>
+                    <p>Будьте первым, кто загрузит видео на платформу!</p>
+                    <button class="upload-btn" id="emptyUploadBtn" style="padding: 12px 24px;">
+                        <i class="fas fa-upload"></i> Загрузить первое видео
+                    </button>
+                </div>
+            </main>
+            
+            <!-- Video Player Page -->
+            <div class="main-content video-page" id="videoPage">
+                <button class="back-btn" id="backBtn">
+                    <i class="fas fa-arrow-left"></i> Назад к видео
+                </button>
+                
+                <div class="video-player-container">
+                    <div class="video-player" id="videoPlayer">
+                        <video id="mainVideo">
+                            Ваш браузер не поддерживает видео тег.
+                        </video>
+                        <div class="player-controls">
+                            <div class="progress-bar">
+                                <div class="progress"></div>
+                            </div>
+                            <div class="control-buttons">
+                                <div class="left-controls">
+                                    <button class="control-btn" id="playPauseBtn"><i class="fas fa-play"></i></button>
+                                    <button class="control-btn" id="muteBtn"><i class="fas fa-volume-up"></i></button>
+                                    <div class="volume-control">
+                                        <div class="volume-slider">
+                                            <div class="volume-level"></div>
+                                        </div>
+                                    </div>
+                                    <div class="time-display">0:00 / 0:00</div>
+                                </div>
+                                <div class="right-controls">
+                                    <button class="control-btn" id="fullscreenBtn"><i class="fas fa-expand"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="video-info">
+                        <h1 class="video-title" id="videoPageTitle">Название видео</h1>
+                        <div class="video-stats">
+                            <span id="videoViews">0 просмотров</span>
+                            <span id="videoDate">Дата</span>
+                        </div>
+                        
+                        <div class="video-actions">
+                            <button class="action-btn"><i class="fas fa-thumbs-up"></i> <span id="likeCount">0</span></button>
+                            <button class="action-btn"><i class="fas fa-thumbs-down"></i> <span id="dislikeCount">0</span></button>
+                            <button class="action-btn"><i class="fas fa-share"></i> Поделиться</button>
+                            <button class="action-btn"><i class="fas fa-save"></i> Сохранить</button>
+                        </div>
+                        
+                        <div class="channel-info">
+                            <div class="channel-avatar large" id="channelAvatar">ТХ</div>
+                            <div class="channel-details">
+                                <h4 id="channelName">Технологии Хаб</h4>
+                                <p id="channelSubs">0 подписчиков</p>
+                            </div>
+                            <button class="subscribe-btn">Подписаться</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Upload Modal -->
+        <div class="modal" id="uploadModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Загрузить видео</h2>
+                    <button class="close-btn" id="closeModal">&times;</button>
+                </div>
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Перетащите видео файл сюда</h3>
+                    <p>или нажмите для выбора файла</p>
+                    <input type="file" id="fileInput" accept="video/*" style="display: none;">
+                </div>
+                <div class="form-group">
+                    <label for="videoTitle">Название видео</label>
+                    <input type="text" id="videoTitle" placeholder="Введите название видео">
+                </div>
+                <div class="form-group">
+                    <label for="videoDescription">Описание</label>
+                    <textarea id="videoDescription" placeholder="Добавьте описание к вашему видео"></textarea>
+                </div>
+                <button class="submit-btn" id="submitVideoBtn">Опубликовать видео</button>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer>
+            <div class="footer-content">
+                <div class="footer-info">
+                    <div class="footer-logo">
+                        <i class="fas fa-play-circle"></i> VidFlow
+                    </div>
+                    <p>Современная платформа для загрузки и просмотра видео</p>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>О нас</h4>
+                        <ul>
+                            <li><a href="#">О проекте</a></li>
+                            <li><a href="#">Контакты</a></li>
+                            <li><a href="#">Партнеры</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4>Поддержка</h4>
+                        <ul>
+                            <li><a href="#">Помощь</a></li>
+                            <li><a href="#">Сообщить о проблеме</a></li>
+                            <li><a href="#">Предложения</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4>Правовая информация</h4>
+                        <ul>
+                            <li><a href="#">Условия использования</a></li>
+                            <li><a href="#">Политика конфиденциальности</a></li>
+                            <li><a href="#">Правила сообщества</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                &copy; 2023 VidFlow. Все права защищены.
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Data storage (in a real app, this would be a backend)
+        let users = JSON.parse(localStorage.getItem('vidflow_users')) || [];
+        let videos = JSON.parse(localStorage.getItem('vidflow_videos')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('vidflow_current_user')) || null;
+
+        // DOM elements
+        const authContainer = document.getElementById('authContainer');
+        const appContainer = document.getElementById('appContainer');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const loginAuthForm = document.getElementById('loginAuthForm');
+        const registerAuthForm = document.getElementById('registerAuthForm');
+        const showRegister = document.getElementById('showRegister');
+        const showLogin = document.getElementById('showLogin');
         const videoListPage = document.getElementById('videoListPage');
         const videoPage = document.getElementById('videoPage');
         const videoGrid = document.getElementById('videoGrid');
+        const emptyState = document.getElementById('emptyState');
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const sidebar = document.getElementById('sidebar');
         const backBtn = document.getElementById('backBtn');
@@ -1083,8 +1288,15 @@
         const closeModalBtn = document.getElementById('closeModal');
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
+        const submitVideoBtn = document.getElementById('submitVideoBtn');
+        const userAvatar = document.getElementById('userAvatar');
+        const userDropdown = document.getElementById('userDropdown');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const myVideosBtn = document.getElementById('myVideosBtn');
+        const myChannelBtn = document.getElementById('myChannelBtn');
+        const emptyUploadBtn = document.getElementById('emptyUploadBtn');
 
-        // Элементы видеоплеера
+        // Video player elements
         const videoPlayer = document.getElementById('videoPlayer');
         const video = document.getElementById('mainVideo');
         const playPauseBtn = document.getElementById('playPauseBtn');
@@ -1101,15 +1313,186 @@
         const channelName = document.getElementById('channelName');
         const channelSubs = document.getElementById('channelSubs');
 
-        // Инициализация
+        // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
-            generateVideoGrid();
+            checkAuthStatus();
             setupEventListeners();
         });
 
-        // Генерация сетки видео
-        function generateVideoGrid() {
+        // Check if user is logged in
+        function checkAuthStatus() {
+            if (currentUser) {
+                showApp();
+            } else {
+                showAuth();
+            }
+        }
+
+        // Show authentication pages
+        function showAuth() {
+            authContainer.style.display = 'flex';
+            appContainer.style.display = 'none';
+        }
+
+        // Show main app
+        function showApp() {
+            authContainer.style.display = 'none';
+            appContainer.style.display = 'block';
+            
+            // Update user interface
+            userAvatar.textContent = currentUser.name.charAt(0).toUpperCase();
+            loadVideos();
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Auth forms
+            showRegister.addEventListener('click', (e) => {
+                e.preventDefault();
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+            });
+
+            showLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                registerForm.style.display = 'none';
+                loginForm.style.display = 'block';
+            });
+
+            loginAuthForm.addEventListener('submit', handleLogin);
+            registerAuthForm.addEventListener('submit', handleRegister);
+
+            // App navigation
+            mobileMenuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+            });
+
+            backBtn.addEventListener('click', () => {
+                videoListPage.style.display = 'block';
+                videoPage.style.display = 'none';
+                video.pause();
+            });
+
+            // Upload modal
+            openUploadModalBtn.addEventListener('click', () => {
+                uploadModal.style.display = 'flex';
+            });
+
+            closeModalBtn.addEventListener('click', () => {
+                uploadModal.style.display = 'none';
+            });
+
+            emptyUploadBtn.addEventListener('click', () => {
+                uploadModal.style.display = 'flex';
+            });
+
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', handleFileSelect);
+            submitVideoBtn.addEventListener('click', handleVideoUpload);
+
+            // User menu
+            userAvatar.addEventListener('click', () => {
+                userDropdown.classList.toggle('show');
+            });
+
+            logoutBtn.addEventListener('click', handleLogout);
+            myVideosBtn.addEventListener('click', showMyVideos);
+            myChannelBtn.addEventListener('click', showMyChannel);
+
+            // Video player controls
+            playPauseBtn.addEventListener('click', togglePlayPause);
+            video.addEventListener('click', togglePlayPause);
+            muteBtn.addEventListener('click', toggleMute);
+            fullscreenBtn.addEventListener('click', toggleFullscreen);
+            video.addEventListener('timeupdate', updateProgress);
+
+            // Close dropdown when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === uploadModal) {
+                    uploadModal.style.display = 'none';
+                }
+                if (!e.target.matches('.user-avatar')) {
+                    userDropdown.classList.remove('show');
+                }
+            });
+        }
+
+        // Handle user login
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('vidflow_current_user', JSON.stringify(currentUser));
+                showApp();
+            } else {
+                alert('Неверный email или пароль');
+            }
+        }
+
+        // Handle user registration
+        function handleRegister(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                alert('Пароли не совпадают');
+                return;
+            }
+            
+            if (users.find(u => u.email === email)) {
+                alert('Пользователь с таким email уже существует');
+                return;
+            }
+            
+            const newUser = {
+                id: Date.now(),
+                name,
+                email,
+                password,
+                joinDate: new Date().toISOString()
+            };
+            
+            users.push(newUser);
+            localStorage.setItem('vidflow_users', JSON.stringify(users));
+            
+            currentUser = newUser;
+            localStorage.setItem('vidflow_current_user', JSON.stringify(currentUser));
+            
+            showApp();
+        }
+
+        // Handle user logout
+        function handleLogout() {
+            currentUser = null;
+            localStorage.removeItem('vidflow_current_user');
+            showAuth();
+        }
+
+        // Load videos
+        function loadVideos() {
             videoGrid.innerHTML = '';
+            
+            if (videos.length === 0) {
+                emptyState.style.display = 'block';
+                videoGrid.style.display = 'none';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            videoGrid.style.display = 'grid';
             
             videos.forEach(video => {
                 const videoCard = document.createElement('div');
@@ -1139,7 +1522,164 @@
             });
         }
 
-        // Форматирование числа просмотров
+        // Show my videos
+        function showMyVideos() {
+            const myVideos = videos.filter(v => v.userId === currentUser.id);
+            
+            videoGrid.innerHTML = '';
+            
+            if (myVideos.length === 0) {
+                emptyState.style.display = 'block';
+                videoGrid.style.display = 'none';
+                emptyState.innerHTML = `
+                    <i class="fas fa-video-slash"></i>
+                    <h2>У вас пока нет видео</h2>
+                    <p>Загрузите свое первое видео и поделитесь им с миром!</p>
+                    <button class="upload-btn" id="emptyUploadBtn" style="padding: 12px 24px;">
+                        <i class="fas fa-upload"></i> Загрузить первое видео
+                    </button>
+                `;
+                
+                document.getElementById('emptyUploadBtn').addEventListener('click', () => {
+                    uploadModal.style.display = 'flex';
+                });
+                
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            videoGrid.style.display = 'grid';
+            
+            myVideos.forEach(video => {
+                const videoCard = document.createElement('div');
+                videoCard.className = 'video-card';
+                videoCard.innerHTML = `
+                    <div class="thumbnail">
+                        <div class="thumbnail-content">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <div class="duration">${video.duration}</div>
+                    </div>
+                    <div class="video-card-info">
+                        <h3 class="video-card-title">${video.title}</h3>
+                        <div class="video-card-channel">
+                            <div class="channel-avatar">${video.channelAvatar}</div>
+                            <span>${video.channel}</span>
+                        </div>
+                        <div class="video-card-stats">
+                            <span>${formatViews(video.views)} просмотров</span>
+                            <span>${video.date}</span>
+                        </div>
+                    </div>
+                `;
+                
+                videoCard.addEventListener('click', () => openVideo(video.id));
+                videoGrid.appendChild(videoCard);
+            });
+        }
+
+        // Show my channel
+        function showMyChannel() {
+            const myVideos = videos.filter(v => v.userId === currentUser.id);
+            alert(`Ваш канал: ${currentUser.name}\nКоличество видео: ${myVideos.length}`);
+        }
+
+        // Handle file selection
+        function handleFileSelect(e) {
+            if (e.target.files.length > 0) {
+                const fileName = e.target.files[0].name;
+                uploadArea.innerHTML = `
+                    <i class="fas fa-check-circle" style="color: #4CAF50;"></i>
+                    <h3>Файл "${fileName}" выбран</h3>
+                    <p>Готово к загрузке</p>
+                `;
+            }
+        }
+
+        // Handle video upload
+        function handleVideoUpload() {
+            const title = document.getElementById('videoTitle').value;
+            const description = document.getElementById('videoDescription').value;
+            
+            if (!title) {
+                alert('Введите название видео');
+                return;
+            }
+            
+            if (!fileInput.files.length) {
+                alert('Выберите видео файл');
+                return;
+            }
+            
+            const newVideo = {
+                id: Date.now(),
+                title,
+                description,
+                channel: currentUser.name,
+                channelAvatar: currentUser.name.charAt(0).toUpperCase(),
+                userId: currentUser.id,
+                views: 0,
+                likes: 0,
+                dislikes: 0,
+                date: 'Только что',
+                duration: '0:00',
+                file: fileInput.files[0].name
+            };
+            
+            videos.push(newVideo);
+            localStorage.setItem('vidflow_videos', JSON.stringify(videos));
+            
+            // Reset form
+            document.getElementById('videoTitle').value = '';
+            document.getElementById('videoDescription').value = '';
+            uploadArea.innerHTML = `
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h3>Перетащите видео файл сюда</h3>
+                <p>или нажмите для выбора файла</p>
+            `;
+            fileInput.value = '';
+            
+            uploadModal.style.display = 'none';
+            loadVideos();
+            
+            alert('Видео успешно загружено!');
+        }
+
+        // Open video
+        function openVideo(videoId) {
+            const selectedVideo = videos.find(v => v.id === videoId);
+            
+            if (selectedVideo) {
+                // Update video page
+                videoPageTitle.textContent = selectedVideo.title;
+                videoViews.textContent = `${formatViews(selectedVideo.views)} просмотров`;
+                videoDate.textContent = selectedVideo.date;
+                likeCount.textContent = selectedVideo.likes;
+                dislikeCount.textContent = selectedVideo.dislikes;
+                channelAvatar.textContent = selectedVideo.channelAvatar;
+                channelName.textContent = selectedVideo.channel;
+                channelSubs.textContent = `${Math.floor(Math.random() * 1000)} подписчиков`;
+                
+                // Switch pages
+                videoListPage.style.display = 'none';
+                videoPage.style.display = 'block';
+                
+                // In a real app, we would load the actual video file
+                // For demo, we use a placeholder
+                video.src = '';
+                video.poster = 'https://placehold.co/800x450/1a1a1a/ffffff?text=VidFlow+Player';
+                
+                // Reset player state
+                video.pause();
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                
+                // Increment view count
+                selectedVideo.views++;
+                localStorage.setItem('vidflow_videos', JSON.stringify(videos));
+            }
+        }
+
+        // Format views count
         function formatViews(views) {
             if (views >= 1000000) {
                 return (views / 1000000).toFixed(1) + ' млн';
@@ -1149,93 +1689,7 @@
             return views;
         }
 
-        // Настройка обработчиков событий
-        function setupEventListeners() {
-            // Мобильное меню
-            mobileMenuBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('active');
-            });
-
-            // Навигация назад
-            backBtn.addEventListener('click', () => {
-                videoListPage.style.display = 'block';
-                videoPage.style.display = 'none';
-                video.pause();
-            });
-
-            // Модальное окно загрузки
-            openUploadModalBtn.addEventListener('click', () => {
-                uploadModal.style.display = 'flex';
-            });
-
-            closeModalBtn.addEventListener('click', () => {
-                uploadModal.style.display = 'none';
-            });
-
-            uploadArea.addEventListener('click', () => {
-                fileInput.click();
-            });
-
-            fileInput.addEventListener('change', (e) => {
-                if (e.target.files.length > 0) {
-                    const fileName = e.target.files[0].name;
-                    uploadArea.innerHTML = `
-                        <i class="fas fa-check-circle" style="color: #4CAF50;"></i>
-                        <h3>Файл "${fileName}" выбран</h3>
-                        <p>Готово к загрузке</p>
-                    `;
-                }
-            });
-
-            // Управление видеоплеером
-            playPauseBtn.addEventListener('click', togglePlayPause);
-            video.addEventListener('click', togglePlayPause);
-            
-            muteBtn.addEventListener('click', toggleMute);
-            
-            fullscreenBtn.addEventListener('click', toggleFullscreen);
-            
-            video.addEventListener('timeupdate', updateProgress);
-            
-            // Закрытие модального окна при клике вне его
-            window.addEventListener('click', (e) => {
-                if (e.target === uploadModal) {
-                    uploadModal.style.display = 'none';
-                }
-            });
-        }
-
-        // Открытие видео
-        function openVideo(videoId) {
-            const selectedVideo = videos.find(v => v.id === videoId);
-            
-            if (selectedVideo) {
-                // Обновляем информацию на странице видео
-                videoPageTitle.textContent = selectedVideo.title;
-                videoViews.textContent = `${formatViews(selectedVideo.views)} просмотров`;
-                videoDate.textContent = selectedVideo.date;
-                likeCount.textContent = selectedVideo.likes;
-                dislikeCount.textContent = selectedVideo.dislikes;
-                channelAvatar.textContent = selectedVideo.channelAvatar;
-                channelName.textContent = selectedVideo.channel;
-                channelSubs.textContent = `${selectedVideo.subscribers} подписчиков`;
-                
-                // Переключаем страницы
-                videoListPage.style.display = 'none';
-                videoPage.style.display = 'block';
-                
-                // В реальном приложении здесь будет загрузка видеофайла
-                // Для демонстрации используем заглушку
-                video.src = '';
-                video.poster = 'https://placehold.co/800x450/1a1a1a/ffffff?text=VidFlow+Player';
-                
-                // Сбрасываем состояние плеера
-                video.pause();
-                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-            }
-        }
-
-        // Управление воспроизведением
+        // Video player controls
         function togglePlayPause() {
             if (video.paused) {
                 video.play();
@@ -1246,7 +1700,6 @@
             }
         }
 
-        // Управление громкостью
         function toggleMute() {
             video.muted = !video.muted;
             muteBtn.innerHTML = video.muted ? 
@@ -1254,7 +1707,6 @@
                 '<i class="fas fa-volume-up"></i>';
         }
 
-        // Полноэкранный режим
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
                 videoPlayer.requestFullscreen().catch(err => {
@@ -1265,18 +1717,15 @@
             }
         }
 
-        // Обновление прогресса
         function updateProgress() {
             const progress = (video.currentTime / video.duration) * 100;
             progressBar.style.width = `${progress}%`;
             
-            // Обновление времени
             const currentTime = formatTime(video.currentTime);
             const duration = formatTime(video.duration);
             document.querySelector('.time-display').textContent = `${currentTime} / ${duration}`;
         }
 
-        // Форматирование времени
         function formatTime(seconds) {
             if (isNaN(seconds)) return '0:00';
             
