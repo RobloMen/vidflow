@@ -52,6 +52,7 @@
             font-size: 1.5rem;
             font-weight: 800;
             color: var(--light);
+            cursor: pointer;
         }
 
         .logo i {
@@ -90,6 +91,7 @@
             display: flex;
             gap: 15px;
             align-items: center;
+            position: relative;
         }
 
         .upload-btn {
@@ -115,6 +117,48 @@
             justify-content: center;
             font-weight: bold;
             cursor: pointer;
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Dropdown Menu */
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--dark-light);
+            border-radius: var(--radius);
+            padding: 10px 0;
+            min-width: 200px;
+            box-shadow: var(--shadow);
+            display: none;
+            z-index: 1000;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--light);
+            text-decoration: none;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--gray);
+            margin: 5px 0;
+            opacity: 0.3;
         }
 
         /* Main Layout */
@@ -132,6 +176,7 @@
             height: calc(100vh - 60px);
             position: sticky;
             top: 60px;
+            overflow-y: auto;
         }
 
         .sidebar-menu {
@@ -147,6 +192,11 @@
             cursor: pointer;
             border-radius: var(--radius);
             margin-bottom: 5px;
+            transition: var(--transition);
+        }
+
+        .sidebar-menu li:hover {
+            background-color: var(--dark-light);
         }
 
         .sidebar-menu li.active {
@@ -164,14 +214,21 @@
             flex: 1;
             padding: 20px;
             background-color: var(--dark);
+            min-height: calc(100vh - 60px);
         }
 
         /* Video Grid */
+        .section-title {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         .video-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
-            margin-top: 20px;
         }
 
         .video-card {
@@ -235,6 +292,8 @@
             justify-content: center;
             font-size: 0.8rem;
             font-weight: bold;
+            background-size: cover;
+            background-position: center;
         }
 
         .video-stats {
@@ -257,6 +316,11 @@
             cursor: pointer;
             padding: 10px 0;
             margin-bottom: 15px;
+            transition: var(--transition);
+        }
+
+        .back-btn:hover {
+            color: var(--primary);
         }
 
         .video-player-container {
@@ -309,6 +373,12 @@
             padding: 8px 15px;
             border-radius: 20px;
             background-color: var(--dark-light);
+            transition: var(--transition);
+        }
+
+        .action-btn:hover {
+            color: var(--light);
+            background-color: var(--primary);
         }
 
         .channel-info {
@@ -323,6 +393,8 @@
             width: 50px;
             height: 50px;
             font-size: 1.1rem;
+            background-size: cover;
+            background-position: center;
         }
 
         .subscribe-btn {
@@ -334,6 +406,11 @@
             border-radius: 20px;
             cursor: pointer;
             font-weight: bold;
+            transition: var(--transition);
+        }
+
+        .subscribe-btn:hover {
+            background-color: var(--primary-dark);
         }
 
         /* Auth */
@@ -385,6 +462,11 @@
             border-radius: var(--radius);
             cursor: pointer;
             margin-top: 1rem;
+            transition: var(--transition);
+        }
+
+        .auth-submit:hover {
+            background: var(--primary-dark);
         }
 
         .auth-switch {
@@ -396,6 +478,74 @@
         .auth-switch a {
             color: var(--primary);
             cursor: pointer;
+            text-decoration: none;
+        }
+
+        /* Profile Page */
+        .profile-page {
+            display: none;
+        }
+
+        .profile-header {
+            background: var(--dark-light);
+            padding: 2rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .profile-avatar:hover::after {
+            content: '✎';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .profile-info h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 2rem;
+            color: var(--gray);
+        }
+
+        .edit-profile-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 1rem;
         }
 
         /* Upload Modal */
@@ -427,6 +577,11 @@
             text-align: center;
             margin-bottom: 1rem;
             cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
         }
 
         /* Empty State */
@@ -499,7 +654,7 @@
     <div id="appContainer">
         <!-- Header -->
         <header>
-            <div class="logo">
+            <div class="logo" onclick="showHomePage()">
                 <i class="fas fa-play-circle"></i>
                 <span>VidFlow</span>
             </div>
@@ -513,7 +668,24 @@
                 <button class="upload-btn" onclick="showUploadModal()">
                     <i class="fas fa-upload"></i> Загрузить
                 </button>
-                <div class="user-avatar" id="userAvatar" onclick="toggleUserMenu()">U</div>
+                <div class="user-avatar" id="userAvatar" onclick="toggleUserMenu()"></div>
+                
+                <!-- User Dropdown Menu -->
+                <div class="dropdown-menu" id="userDropdown">
+                    <div class="dropdown-item" onclick="showProfilePage()">
+                        <i class="fas fa-user"></i>
+                        <span>Мой канал</span>
+                    </div>
+                    <div class="dropdown-item" onclick="showMyVideos()">
+                        <i class="fas fa-video"></i>
+                        <span>Мои видео</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Выйти</span>
+                    </div>
+                </div>
             </div>
         </header>
 
@@ -521,16 +693,19 @@
             <!-- Sidebar -->
             <aside class="sidebar">
                 <ul class="sidebar-menu">
-                    <li class="active"><i class="fas fa-home"></i> Главная</li>
-                    <li><i class="fas fa-fire"></i> Популярное</li>
-                    <li><i class="fas fa-history"></i> История</li>
-                    <li><i class="fas fa-thumbs-up"></i> Понравившиеся</li>
+                    <li class="active" onclick="showHomePage()"><i class="fas fa-home"></i> Главная</li>
+                    <li onclick="showPopular()"><i class="fas fa-fire"></i> Популярное</li>
+                    <li onclick="showHistory()"><i class="fas fa-history"></i> История</li>
+                    <li onclick="showLiked()"><i class="fas fa-thumbs-up"></i> Понравившиеся</li>
                     <li onclick="showMyVideos()"><i class="fas fa-video"></i> Мои видео</li>
                 </ul>
             </aside>
 
-            <!-- Video List -->
-            <main class="main-content" id="videoListPage">
+            <!-- Home Page -->
+            <main class="main-content" id="homePage">
+                <div class="section-title">
+                    <h2>Рекомендуемые видео</h2>
+                </div>
                 <div class="video-grid" id="videoGrid">
                     <!-- Videos will be loaded here -->
                 </div>
@@ -564,9 +739,9 @@
                         </div>
                         
                         <div class="video-actions">
-                            <button class="action-btn"><i class="fas fa-thumbs-up"></i> <span id="likeCount">0</span></button>
-                            <button class="action-btn"><i class="fas fa-thumbs-down"></i> <span id="dislikeCount">0</span></button>
-                            <button class="action-btn"><i class="fas fa-share"></i> Поделиться</button>
+                            <button class="action-btn" onclick="likeVideo()"><i class="fas fa-thumbs-up"></i> <span id="likeCount">0</span></button>
+                            <button class="action-btn" onclick="dislikeVideo()"><i class="fas fa-thumbs-down"></i> <span id="dislikeCount">0</span></button>
+                            <button class="action-btn" onclick="shareVideo()"><i class="fas fa-share"></i> Поделиться</button>
                         </div>
                         
                         <div class="channel-info">
@@ -575,9 +750,35 @@
                                 <h4 id="channelNamePage"></h4>
                                 <p id="channelSubsPage">0 подписчиков</p>
                             </div>
-                            <button class="subscribe-btn">Подписаться</button>
+                            <button class="subscribe-btn" onclick="subscribeChannel()">Подписаться</button>
                         </div>
                     </div>
+                </div>
+            </main>
+
+            <!-- Profile Page -->
+            <main class="main-content profile-page" id="profilePage">
+                <button class="back-btn" onclick="showHomePage()">
+                    <i class="fas fa-arrow-left"></i> Назад
+                </button>
+
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profileAvatar" onclick="changeAvatar()"></div>
+                    <div class="profile-info">
+                        <h1 id="profileName"></h1>
+                        <div class="profile-stats">
+                            <span id="profileSubs">0 подписчиков</span>
+                            <span id="profileVideos">0 видео</span>
+                        </div>
+                        <button class="edit-profile-btn" onclick="editProfile()">Редактировать канал</button>
+                    </div>
+                </div>
+
+                <div class="section-title">
+                    <h2>Мои видео</h2>
+                </div>
+                <div class="video-grid" id="profileVideoGrid">
+                    <!-- Profile videos will be loaded here -->
                 </div>
             </main>
         </div>
@@ -588,7 +789,7 @@
         <div class="modal-content">
             <h2 style="margin-bottom: 1rem;">Загрузить видео</h2>
             
-            <div class="upload-area" onclick="document.getElementById('videoFile').click()">
+            <div class="upload-area" onclick="document.getElementById('videoFile').click()" id="uploadArea">
                 <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 1rem;"></i>
                 <p>Нажмите для выбора видео файла</p>
                 <input type="file" id="videoFile" accept="video/*" style="display: none;">
@@ -606,26 +807,53 @@
         </div>
     </div>
 
+    <!-- Avatar Change Modal -->
+    <div class="modal" id="avatarModal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 1rem;">Изменить аватар</h2>
+            <div class="upload-area" onclick="document.getElementById('avatarFile').click()">
+                <i class="fas fa-user-circle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                <p>Выберите изображение для аватара</p>
+                <input type="file" id="avatarFile" accept="image/*" style="display: none;">
+            </div>
+            <button class="auth-submit" onclick="saveAvatar()">Сохранить аватар</button>
+        </div>
+    </div>
+
     <script>
         // Data storage
         let users = JSON.parse(localStorage.getItem('vidflow_users')) || [];
         let videos = JSON.parse(localStorage.getItem('vidflow_videos')) || [];
         let currentUser = JSON.parse(localStorage.getItem('vidflow_current_user')) || null;
+        let currentPlayingVideo = null;
 
         // DOM elements
         const authContainer = document.getElementById('authContainer');
         const appContainer = document.getElementById('appContainer');
-        const videoGrid = document.getElementById('videoGrid');
-        const emptyState = document.getElementById('emptyState');
-        const videoListPage = document.getElementById('videoListPage');
+        const homePage = document.getElementById('homePage');
         const videoPage = document.getElementById('videoPage');
+        const profilePage = document.getElementById('profilePage');
+        const videoGrid = document.getElementById('videoGrid');
+        const profileVideoGrid = document.getElementById('profileVideoGrid');
+        const emptyState = document.getElementById('emptyState');
         const mainVideo = document.getElementById('mainVideo');
         const userAvatar = document.getElementById('userAvatar');
+        const userDropdown = document.getElementById('userDropdown');
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             checkAuth();
+            setupEventListeners();
         });
+
+        function setupEventListeners() {
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.user-actions')) {
+                    userDropdown.classList.remove('show');
+                }
+            });
+        }
 
         function checkAuth() {
             if (currentUser) {
@@ -643,8 +871,18 @@
         function showApp() {
             authContainer.style.display = 'none';
             appContainer.style.display = 'block';
-            userAvatar.textContent = currentUser.name.charAt(0).toUpperCase();
-            loadVideos();
+            updateUserAvatar();
+            showHomePage();
+        }
+
+        function updateUserAvatar() {
+            if (currentUser.avatar) {
+                userAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
+                userAvatar.textContent = '';
+            } else {
+                userAvatar.style.backgroundImage = 'none';
+                userAvatar.textContent = currentUser.name.charAt(0).toUpperCase();
+            }
         }
 
         function showLogin() {
@@ -693,7 +931,9 @@
                 name,
                 email,
                 password,
-                joinDate: new Date().toISOString()
+                avatar: null,
+                joinDate: new Date().toISOString(),
+                subscribers: 0
             };
 
             users.push(user);
@@ -702,6 +942,50 @@
             currentUser = user;
             localStorage.setItem('vidflow_current_user', JSON.stringify(currentUser));
             showApp();
+        }
+
+        function toggleUserMenu() {
+            userDropdown.classList.toggle('show');
+        }
+
+        function showHomePage() {
+            homePage.style.display = 'block';
+            videoPage.style.display = 'none';
+            profilePage.style.display = 'none';
+            loadVideos();
+        }
+
+        function showProfilePage() {
+            homePage.style.display = 'none';
+            videoPage.style.display = 'none';
+            profilePage.style.display = 'block';
+            loadProfileData();
+            userDropdown.classList.remove('show');
+        }
+
+        function loadProfileData() {
+            document.getElementById('profileName').textContent = currentUser.name;
+            document.getElementById('profileSubs').textContent = currentUser.subscribers + ' подписчиков';
+            
+            const myVideos = videos.filter(v => v.userId === currentUser.id);
+            document.getElementById('profileVideos').textContent = myVideos.length + ' видео';
+
+            // Update profile avatar
+            const profileAvatar = document.getElementById('profileAvatar');
+            if (currentUser.avatar) {
+                profileAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
+                profileAvatar.textContent = '';
+            } else {
+                profileAvatar.style.backgroundImage = 'none';
+                profileAvatar.textContent = currentUser.name.charAt(0).toUpperCase();
+            }
+
+            // Load profile videos
+            profileVideoGrid.innerHTML = '';
+            myVideos.forEach(video => {
+                const videoElement = createVideoElement(video);
+                profileVideoGrid.appendChild(videoElement);
+            });
         }
 
         function showUploadModal() {
@@ -735,7 +1019,7 @@
                 title,
                 description,
                 channel: currentUser.name,
-                channelAvatar: currentUser.name.charAt(0).toUpperCase(),
+                channelAvatar: currentUser.avatar,
                 userId: currentUser.id,
                 views: 0,
                 likes: 0,
@@ -752,6 +1036,10 @@
             document.getElementById('uploadTitle').value = '';
             document.getElementById('uploadDescription').value = '';
             document.getElementById('videoFile').value = '';
+            document.getElementById('uploadArea').innerHTML = `
+                <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                <p>Нажмите для выбора видео файла</p>
+            `;
             document.getElementById('uploadModal').style.display = 'none';
 
             loadVideos();
@@ -771,48 +1059,71 @@
             videoGrid.style.display = 'grid';
 
             videos.forEach(video => {
-                const videoElement = document.createElement('div');
-                videoElement.className = 'video-card';
-                videoElement.innerHTML = `
-                    <div class="thumbnail">
-                        <div class="thumbnail-content">
-                            <i class="fas fa-play" style="color: var(--primary); font-size: 2rem;"></i>
-                        </div>
-                    </div>
-                    <div class="video-info">
-                        <h3 class="video-title">${video.title}</h3>
-                        <div class="video-card-channel">
-                            <div class="channel-avatar">${video.channelAvatar}</div>
-                            <span>${video.channel}</span>
-                        </div>
-                        <div class="video-stats">
-                            ${video.views} просмотров • ${video.date}
-                        </div>
-                    </div>
-                `;
-
-                videoElement.addEventListener('click', () => playVideo(video.id));
+                const videoElement = createVideoElement(video);
                 videoGrid.appendChild(videoElement);
             });
+        }
+
+        function createVideoElement(video) {
+            const videoElement = document.createElement('div');
+            videoElement.className = 'video-card';
+            
+            const channelAvatar = video.channelAvatar ? 
+                `style="background-image: url(${video.channelAvatar})"` : '';
+            
+            videoElement.innerHTML = `
+                <div class="thumbnail">
+                    <div class="thumbnail-content">
+                        <i class="fas fa-play" style="color: var(--primary); font-size: 2rem;"></i>
+                    </div>
+                </div>
+                <div class="video-info">
+                    <h3 class="video-title">${video.title}</h3>
+                    <div class="video-card-channel">
+                        <div class="channel-avatar" ${channelAvatar}>${video.channelAvatar ? '' : video.channel.charAt(0).toUpperCase()}</div>
+                        <span>${video.channel}</span>
+                    </div>
+                    <div class="video-stats">
+                        ${video.views} просмотров • ${video.date}
+                    </div>
+                </div>
+            `;
+
+            videoElement.addEventListener('click', () => playVideo(video.id));
+            return videoElement;
         }
 
         function playVideo(videoId) {
             const video = videos.find(v => v.id === videoId);
             if (!video) return;
 
+            currentPlayingVideo = video;
+
             // Update video page
             document.getElementById('videoTitlePage').textContent = video.title;
             document.getElementById('videoViewsPage').textContent = video.views + ' просмотров';
             document.getElementById('videoDatePage').textContent = video.date;
-            document.getElementById('channelAvatarPage').textContent = video.channelAvatar;
+            document.getElementById('likeCount').textContent = video.likes;
+            document.getElementById('dislikeCount').textContent = video.dislikes;
+            
+            // Update channel info
+            const channelAvatar = document.getElementById('channelAvatarPage');
+            if (video.channelAvatar) {
+                channelAvatar.style.backgroundImage = `url(${video.channelAvatar})`;
+                channelAvatar.textContent = '';
+            } else {
+                channelAvatar.style.backgroundImage = 'none';
+                channelAvatar.textContent = video.channel.charAt(0).toUpperCase();
+            }
             document.getElementById('channelNamePage').textContent = video.channel;
 
             // Play video
             mainVideo.src = video.url;
             
             // Show video page
-            videoListPage.style.display = 'none';
+            homePage.style.display = 'none';
             videoPage.style.display = 'block';
+            profilePage.style.display = 'none';
 
             // Update views
             video.views++;
@@ -821,7 +1132,7 @@
 
         function backToVideos() {
             videoPage.style.display = 'none';
-            videoListPage.style.display = 'block';
+            homePage.style.display = 'block';
             mainVideo.pause();
             loadVideos();
         }
@@ -853,38 +1164,126 @@
             videoGrid.style.display = 'grid';
 
             myVideos.forEach(video => {
-                const videoElement = document.createElement('div');
-                videoElement.className = 'video-card';
-                videoElement.innerHTML = `
-                    <div class="thumbnail">
-                        <div class="thumbnail-content">
-                            <i class="fas fa-play" style="color: var(--primary); font-size: 2rem;"></i>
-                        </div>
-                    </div>
-                    <div class="video-info">
-                        <h3 class="video-title">${video.title}</h3>
-                        <div class="video-stats">
-                            ${video.views} просмотров • ${video.date}
-                        </div>
-                    </div>
-                `;
-
-                videoElement.addEventListener('click', () => playVideo(video.id));
+                const videoElement = createVideoElement(video);
                 videoGrid.appendChild(videoElement);
             });
+
+            homePage.style.display = 'block';
+            videoPage.style.display = 'none';
+            profilePage.style.display = 'none';
+            userDropdown.classList.remove('show');
         }
 
-        function toggleUserMenu() {
-            if (!currentUser) {
-                showAuth();
-                return;
+        // Video actions
+        function likeVideo() {
+            if (currentPlayingVideo) {
+                currentPlayingVideo.likes++;
+                document.getElementById('likeCount').textContent = currentPlayingVideo.likes;
+                localStorage.setItem('vidflow_videos', JSON.stringify(videos));
             }
-            // Simple logout for now
-            if (confirm('Выйти из аккаунта?')) {
-                currentUser = null;
-                localStorage.removeItem('vidflow_current_user');
-                showAuth();
+        }
+
+        function dislikeVideo() {
+            if (currentPlayingVideo) {
+                currentPlayingVideo.dislikes++;
+                document.getElementById('dislikeCount').textContent = currentPlayingVideo.dislikes;
+                localStorage.setItem('vidflow_videos', JSON.stringify(videos));
             }
+        }
+
+        function shareVideo() {
+            if (currentPlayingVideo) {
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    alert('Ссылка на видео скопирована!');
+                });
+            }
+        }
+
+        function subscribeChannel() {
+            if (currentPlayingVideo && currentPlayingVideo.userId !== currentUser.id) {
+                const channelUser = users.find(u => u.id === currentPlayingVideo.userId);
+                if (channelUser) {
+                    channelUser.subscribers = (channelUser.subscribers || 0) + 1;
+                    localStorage.setItem('vidflow_users', JSON.stringify(users));
+                    alert(`Вы подписались на канал ${currentPlayingVideo.channel}`);
+                }
+            }
+        }
+
+        // Avatar functions
+        function changeAvatar() {
+            document.getElementById('avatarModal').style.display = 'flex';
+        }
+
+        function saveAvatar() {
+            const fileInput = document.getElementById('avatarFile');
+            if (fileInput.files.length) {
+                const file = fileInput.files[0];
+                const avatarUrl = URL.createObjectURL(file);
+                
+                currentUser.avatar = avatarUrl;
+                localStorage.setItem('vidflow_current_user', JSON.stringify(currentUser));
+                
+                // Update user in users array
+                const userIndex = users.findIndex(u => u.id === currentUser.id);
+                if (userIndex !== -1) {
+                    users[userIndex].avatar = avatarUrl;
+                    localStorage.setItem('vidflow_users', JSON.stringify(users));
+                }
+                
+                updateUserAvatar();
+                document.getElementById('avatarModal').style.display = 'none';
+                alert('Аватар успешно изменен!');
+            } else {
+                alert('Выберите изображение для аватара');
+            }
+        }
+
+        function editProfile() {
+            const newName = prompt('Введите новое имя:', currentUser.name);
+            if (newName && newName.trim()) {
+                currentUser.name = newName.trim();
+                localStorage.setItem('vidflow_current_user', JSON.stringify(currentUser));
+                
+                // Update user in users array
+                const userIndex = users.findIndex(u => u.id === currentUser.id);
+                if (userIndex !== -1) {
+                    users[userIndex].name = newName.trim();
+                    localStorage.setItem('vidflow_users', JSON.stringify(users));
+                }
+                
+                // Update videos with new channel name
+                videos.forEach(video => {
+                    if (video.userId === currentUser.id) {
+                        video.channel = newName.trim();
+                    }
+                });
+                localStorage.setItem('vidflow_videos', JSON.stringify(videos));
+                
+                updateUserAvatar();
+                loadProfileData();
+                alert('Профиль успешно обновлен!');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('vidflow_current_user');
+            showAuth();
+            userDropdown.classList.remove('show');
+        }
+
+        // Placeholder functions
+        function showPopular() {
+            alert('Раздел "Популярное" в разработке');
+        }
+
+        function showHistory() {
+            alert('Раздел "История" в разработке');
+        }
+
+        function showLiked() {
+            alert('Раздел "Понравившиеся" в разработке');
         }
     </script>
 </body>
