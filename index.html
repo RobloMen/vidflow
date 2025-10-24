@@ -792,7 +792,7 @@
             <div class="upload-area" onclick="document.getElementById('videoFile').click()" id="uploadArea">
                 <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 1rem;"></i>
                 <p>Нажмите для выбора видео файла</p>
-                <input type="file" id="videoFile" accept="video/*" style="display: none;" onchange="handleFileSelect(this)">
+                <input type="file" id="videoFile" accept="video/*" style="display: none;">
             </div>
 
             <div class="form-group">
@@ -826,6 +826,7 @@
         let videos = JSON.parse(localStorage.getItem('vidflow_videos')) || [];
         let currentUser = JSON.parse(localStorage.getItem('vidflow_current_user')) || null;
         let currentPlayingVideo = null;
+        let selectedVideoFile = null;
 
         // DOM elements
         const authContainer = document.getElementById('authContainer');
@@ -839,13 +840,12 @@
         const mainVideo = document.getElementById('mainVideo');
         const userAvatar = document.getElementById('userAvatar');
         const userDropdown = document.getElementById('userDropdown');
+        const videoFileInput = document.getElementById('videoFile');
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             checkAuth();
             setupEventListeners();
-            // Восстанавливаем Object URLs после перезагрузки страницы
-            restoreVideoUrls();
         });
 
         function setupEventListeners() {
@@ -855,15 +855,27 @@
                     userDropdown.classList.remove('show');
                 }
             });
-        }
 
-        // Восстановление Object URLs после перезагрузки страницы
-        function restoreVideoUrls() {
-            videos.forEach(video => {
-                if (video.file && !video.url) {
-                    // В реальном приложении здесь был бы запрос к серверу
-                    // Для демо просто создаем сообщение
-                    console.log('Видео требует повторной загрузки:', video.title);
+            // Обработчик выбора файла
+            videoFileInput.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    selectedVideoFile = e.target.files[0];
+                    const fileName = selectedVideoFile.name;
+                    
+                    // Обновляем отображение
+                    const uploadArea = document.getElementById('uploadArea');
+                    uploadArea.innerHTML = `
+                        <i class="fas fa-check-circle" style="color: #4CAF50; font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <p>Файл "${fileName}" выбран</p>
+                        <p style="font-size: 0.8rem; color: var(--gray);">Нажмите для выбора другого файла</p>
+                        <input type="file" id="videoFile" accept="video/*" style="display: none;">
+                    `;
+                    
+                    // Добавляем обработчик для нового input
+                    const newInput = uploadArea.querySelector('#videoFile');
+                    newInput.addEventListener('change', function(e) {
+                        setupEventListeners(); // Переустанавливаем обработчики
+                    });
                 }
             });
         }
@@ -1006,48 +1018,47 @@
                 showAuth();
                 return;
             }
+            // Сбрасываем выбранный файл при открытии модального окна
+            selectedVideoFile = null;
             document.getElementById('uploadModal').style.display = 'flex';
-        }
-
-        // Обработка выбора файла
-        function handleFileSelect(input) {
-            if (input.files && input.files[0]) {
-                const fileName = input.files[0].name;
-                input.parentElement.innerHTML = `
-                    <i class="fas fa-check-circle" style="color: #4CAF50; font-size: 2rem; margin-bottom: 1rem;"></i>
-                    <p>Файл "${fileName}" выбран</p>
-                    <p>Нажмите для выбора другого файла</p>
-                    <input type="file" id="videoFile" accept="video/*" style="display: none;" onchange="handleFileSelect(this)">
-                `;
-                input.parentElement.onclick = () => document.getElementById('videoFile').click();
-            }
+            
+            // Сбрасываем отображение загрузочной области
+            document.getElementById('uploadArea').innerHTML = `
+                <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                <p>Нажмите для выбора видео файла</p>
+                <input type="file" id="videoFile" accept="video/*" style="display: none;">
+            `;
+            
+            // Сбрасываем форму
+            document.getElementById('uploadTitle').value = '';
+            document.getElementById('uploadDescription').value = '';
+            
+            // Переустанавливаем обработчики
+            setupEventListeners();
         }
 
         function uploadVideo() {
             const title = document.getElementById('uploadTitle').value;
             const description = document.getElementById('uploadDescription').value;
-            const fileInput = document.getElementById('videoFile');
 
             if (!title) {
                 alert('Введите название видео');
                 return;
             }
 
-            if (!fileInput.files || !fileInput.files[0]) {
+            if (!selectedVideoFile) {
                 alert('Выберите видео файл');
                 return;
             }
 
-            const file = fileInput.files[0];
-            
             // Проверяем размер файла (максимум 100MB)
-            if (file.size > 100 * 1024 * 1024) {
+            if (selectedVideoFile.size > 100 * 1024 * 1024) {
                 alert('Файл слишком большой. Максимальный размер: 100MB');
                 return;
             }
 
             // Создаем Object URL для видео
-            const videoUrl = URL.createObjectURL(file);
+            const videoUrl = URL.createObjectURL(selectedVideoFile);
 
             const video = {
                 id: Date.now(),
@@ -1061,9 +1072,8 @@
                 dislikes: 0,
                 date: new Date().toLocaleDateString('ru-RU'),
                 url: videoUrl,
-                filename: file.name,
-                file: file.name, // Сохраняем имя файла для информации
-                size: file.size
+                filename: selectedVideoFile.name,
+                size: selectedVideoFile.size
             };
 
             videos.push(video);
@@ -1074,12 +1084,8 @@
             document.getElementById('uploadDescription').value = '';
             document.getElementById('uploadModal').style.display = 'none';
             
-            // Reset upload area
-            document.getElementById('uploadArea').innerHTML = `
-                <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                <p>Нажмите для выбора видео файла</p>
-                <input type="file" id="videoFile" accept="video/*" style="display: none;" onchange="handleFileSelect(this)">
-            `;
+            // Сбрасываем выбранный файл
+            selectedVideoFile = null;
 
             loadVideos();
             alert('Видео успешно загружено!');
@@ -1156,12 +1162,12 @@
             }
             document.getElementById('channelNamePage').textContent = video.channel;
 
-            // Play video - ВАЖНО: проверяем наличие URL
+            // Play video
             if (video.url) {
                 mainVideo.src = video.url;
-                mainVideo.load(); // Принудительно загружаем видео
+                mainVideo.load();
             } else {
-                alert('Ошибка: видеофайл не найден. Пожалуйста, перезагрузите видео.');
+                alert('Ошибка: видеофайл не найден');
                 return;
             }
             
@@ -1180,7 +1186,7 @@
             homePage.style.display = 'block';
             if (mainVideo) {
                 mainVideo.pause();
-                mainVideo.src = ''; // Очищаем источник
+                mainVideo.src = '';
             }
             loadVideos();
         }
