@@ -32,7 +32,6 @@
             overflow-x: hidden;
         }
 
-        /* Sync Notification */
         .sync-notification {
             position: fixed;
             top: 70px;
@@ -43,12 +42,18 @@
             border-radius: var(--radius);
             z-index: 1001;
             display: none;
-            animation: slideIn 0.3s ease;
         }
 
-        @keyframes slideIn {
-            from { transform: translateX(100px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        .session-notification {
+            position: fixed;
+            top: 70px;
+            left: 20px;
+            background: #ffa500;
+            color: black;
+            padding: 10px 15px;
+            border-radius: var(--radius);
+            z-index: 1001;
+            display: none;
         }
 
         /* Header */
@@ -295,11 +300,11 @@
             z-index: 10;
         }
 
-        .reupload-badge {
+        .session-badge {
             position: absolute;
             top: 10px;
             left: 10px;
-            background: rgba(255, 215, 0, 0.9);
+            background: rgba(255, 165, 0, 0.9);
             color: #000;
             padding: 4px 8px;
             border-radius: 12px;
@@ -405,26 +410,11 @@
             top: 10px;
             right: 10px;
             z-index: 10;
-            display: flex;
-            gap: 10px;
         }
 
         .delete-video-btn {
             background: rgba(255, 0, 0, 0.8);
             color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 600;
-        }
-
-        .reupload-video-btn {
-            background: rgba(255, 215, 0, 0.8);
-            color: #000;
             border: none;
             padding: 8px 16px;
             border-radius: 20px;
@@ -721,17 +711,17 @@
             .sidebar {
                 display: none;
             }
-            .admin-controls {
-                flex-direction: column;
-                gap: 5px;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- Sync Notification -->
+    <!-- Notifications -->
     <div class="sync-notification" id="syncNotification">
         <i class="fas fa-sync-alt"></i> Синхронизация...
+    </div>
+
+    <div class="session-notification" id="sessionNotification">
+        <i class="fas fa-info-circle"></i> Видео доступны только в текущей сессии браузера
     </div>
 
     <!-- Auth Modal -->
@@ -864,9 +854,6 @@
                         <button class="delete-video-btn" onclick="deleteCurrentVideo()">
                             <i class="fas fa-trash"></i> Удалить видео
                         </button>
-                        <button class="reupload-video-btn" onclick="reuploadCurrentVideo()" id="reuploadBtn" style="display: none;">
-                            <i class="fas fa-redo"></i> Перезагрузить
-                        </button>
                     </div>
                     <div class="video-player">
                         <video id="mainVideo" controls></video>
@@ -933,7 +920,7 @@
             <div class="upload-area" id="uploadArea">
                 <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 1rem;"></i>
                 <p id="uploadText">Нажмите для выбора видео файла</p>
-                <p class="file-size-info">Максимальный размер: 10 ГБ</p>
+                <p class="file-size-info">Максимальный размер: 2 ГБ (видео доступны только в текущей сессии)</p>
                 <input type="file" id="videoFile" accept="video/*" class="file-input">
             </div>
 
@@ -963,11 +950,15 @@
     </div>
 
     <script>
-        // Data storage with sync capabilities
+        // Оптимизированное хранилище - только метаданные
         let users = JSON.parse(localStorage.getItem('vidflow_users')) || [];
         let videos = JSON.parse(localStorage.getItem('vidflow_videos')) || [];
         let currentUser = JSON.parse(localStorage.getItem('vidflow_current_user')) || null;
         let currentPlayingVideo = null;
+        
+        // Временное хранилище файлов в памяти сессии
+        let sessionVideoFiles = new Map();
+        let sessionThumbnails = new Map();
 
         // DOM elements
         const authContainer = document.getElementById('authContainer');
@@ -985,108 +976,36 @@
         const uploadText = document.getElementById('uploadText');
         const adminBadge = document.getElementById('adminBadge');
         const adminControls = document.getElementById('adminControls');
-        const reuploadBtn = document.getElementById('reuploadBtn');
         const syncNotification = document.getElementById('syncNotification');
+        const sessionNotification = document.getElementById('sessionNotification');
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             initializeApp();
         });
 
-        async function initializeApp() {
-            await checkSync();
+        function initializeApp() {
             checkAuth();
             setupEventListeners();
-            setupSyncListener();
+            showSessionNotification();
+            cleanupExpiredVideos();
         }
 
-        // Синхронизация между вкладками
-        function setupSyncListener() {
-            window.addEventListener('storage', function(e) {
-                if (e.key === 'vidflow_videos' || e.key === 'vidflow_users') {
-                    showSyncNotification();
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
+        function cleanupExpiredVideos() {
+            // Очистка устаревших URL объектов
+            sessionVideoFiles.forEach((data, id) => {
+                if (!videos.find(v => v.id === id)) {
+                    URL.revokeObjectURL(data.url);
+                    sessionVideoFiles.delete(id);
                 }
             });
         }
 
-        function showSyncNotification() {
-            syncNotification.style.display = 'block';
+        function showSessionNotification() {
+            sessionNotification.style.display = 'block';
             setTimeout(() => {
-                syncNotification.style.display = 'none';
-            }, 3000);
-        }
-
-        // Проверка синхронизации при загрузке
-        async function checkSync() {
-            const lastSync = localStorage.getItem('vidflow_last_sync');
-            const now = Date.now();
-            
-            // Синхронизируем каждые 30 секунд
-            if (!lastSync || (now - parseInt(lastSync)) > 30000) {
-                await performSync();
-            }
-            
-            // Восстанавливаем видео файлы
-            await restoreVideoFiles();
-        }
-
-        // Основная функция синхронизации
-        async function performSync() {
-            try {
-                // Сохраняем временные метки
-                localStorage.setItem('vidflow_last_sync', Date.now().toString());
-                
-                // В реальном приложении здесь был бы запрос к серверу
-                // Для демо просто обновляем localStorage
-                const syncData = {
-                    users: users,
-                    videos: videos,
-                    timestamp: Date.now()
-                };
-                
-                localStorage.setItem('vidflow_sync_data', JSON.stringify(syncData));
-                
-                console.log('Синхронизация завершена');
-            } catch (error) {
-                console.error('Ошибка синхронизации:', error);
-            }
-        }
-
-        // Восстановление видео файлов после перезагрузки
-        async function restoreVideoFiles() {
-            const restoredVideos = [];
-            
-            for (let video of videos) {
-                if (video.fileData) {
-                    // Восстанавливаем файл из base64
-                    try {
-                        const response = await fetch(video.fileData);
-                        const blob = await response.blob();
-                        video.url = URL.createObjectURL(blob);
-                        video.needReupload = false;
-                        restoredVideos.push(video);
-                    } catch (error) {
-                        console.error('Ошибка восстановления видео:', video.title, error);
-                        // Оставляем видео без URL
-                        video.url = null;
-                        video.needReupload = true;
-                        restoredVideos.push(video);
-                    }
-                } else if (video.file && !video.url) {
-                    // Если есть информация о файле но нет URL, помечаем для повторной загрузки
-                    video.needReupload = true;
-                    restoredVideos.push(video);
-                } else {
-                    // Видео в нормальном состоянии
-                    restoredVideos.push(video);
-                }
-            }
-            
-            videos = restoredVideos;
-            localStorage.setItem('vidflow_videos', JSON.stringify(videos));
+                sessionNotification.style.display = 'none';
+            }, 5000);
         }
 
         function setupEventListeners() {
@@ -1102,7 +1021,7 @@
                 if (e.target.files && e.target.files[0]) {
                     const file = e.target.files[0];
                     const fileName = file.name;
-                    const fileSize = (file.size / (1024 * 1024 * 1024)).toFixed(2); // Размер в ГБ
+                    const fileSize = (file.size / (1024 * 1024 * 1024)).toFixed(2);
                     
                     uploadText.innerHTML = `
                         <i class="fas fa-check-circle" style="color: #4CAF50; font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
@@ -1110,8 +1029,43 @@
                         <p style="font-size: 0.8rem; color: var(--gray);">Размер: ${fileSize} ГБ</p>
                         <p style="font-size: 0.8rem; color: var(--gray);">Нажмите для выбора другого файла</p>
                     `;
+                    
+                    // Предварительная проверка размера
+                    if (file.size > 2 * 1024 * 1024 * 1024) {
+                        uploadText.innerHTML += `<p style="color: var(--primary); font-size: 0.8rem;">Внимание: файл превышает 2 ГБ!</p>`;
+                    }
                 }
             });
+
+            // Синхронизация между вкладками
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'vidflow_videos' || e.key === 'vidflow_users') {
+                    showSyncNotification();
+                    setTimeout(() => {
+                        videos = JSON.parse(localStorage.getItem('vidflow_videos')) || [];
+                        users = JSON.parse(localStorage.getItem('vidflow_users')) || [];
+                        if (currentUser) {
+                            currentUser = users.find(u => u.id === currentUser.id) || currentUser;
+                            localStorage.setItem('vidflow_current_user', JSON.stringify(currentUser));
+                        }
+                        loadVideos();
+                    }, 1000);
+                }
+            });
+
+            // Очистка при закрытии вкладки
+            window.addEventListener('beforeunload', function() {
+                sessionVideoFiles.forEach(data => {
+                    URL.revokeObjectURL(data.url);
+                });
+            });
+        }
+
+        function showSyncNotification() {
+            syncNotification.style.display = 'block';
+            setTimeout(() => {
+                syncNotification.style.display = 'none';
+            }, 3000);
         }
 
         function checkAuth() {
@@ -1146,7 +1100,6 @@
         }
 
         function checkAdminStatus() {
-            // Проверяем, является ли пользователь Kazuha
             if (currentUser && currentUser.name === 'Kazuha') {
                 adminBadge.style.display = 'block';
             } else {
@@ -1276,370 +1229,291 @@
             uploadText.innerHTML = 'Нажмите для выбора видео файла';
         }
 
-        // Функция преобразования файла в base64
-        function fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-            });
-        }
-
-        async function uploadVideo() {
-            const title = document.getElementById('uploadTitle').value;
-            const description = document.getElementById('uploadDescription').value;
-
+        function uploadVideo() {
+            const fileInput = document.getElementById('videoFile');
+            const titleInput = document.getElementById('uploadTitle');
+            const descriptionInput = document.getElementById('uploadDescription');
+            
+            const file = fileInput.files[0];
+            const title = titleInput.value.trim();
+            const description = descriptionInput.value.trim();
+            
+            if (!file) {
+                alert('Пожалуйста, выберите видео файл');
+                return;
+            }
+            
             if (!title) {
-                alert('Введите название видео');
+                alert('Пожалуйста, введите название видео');
                 return;
             }
-
-            if (!videoFileInput.files || !videoFileInput.files[0]) {
-                alert('Выберите видео файл');
+            
+            // Проверка размера файла
+            if (file.size > 2 * 1024 * 1024 * 1024) {
+                alert('Размер файла не должен превышать 2 ГБ');
                 return;
             }
-
-            const file = videoFileInput.files[0];
-
-            // Проверяем размер файла (максимум 10 ГБ)
-            if (file.size > 10 * 1024 * 1024 * 1024) {
-                alert('Файл слишком большой. Максимальный размер: 10 ГБ');
-                return;
-            }
-
+            
             try {
-                showSyncNotification();
-
-                // Создаем Object URL для видео
+                // Создаем объект URL для видео (хранится только в памяти сессии)
                 const videoUrl = URL.createObjectURL(file);
-
-                // Сохраняем файл в base64 для восстановления
-                const fileData = await fileToBase64(file);
-
+                
                 const video = {
                     id: Date.now(),
-                    title,
-                    description,
-                    channel: currentUser.name,
-                    channelAvatar: currentUser.avatar,
+                    title: title,
+                    description: description,
                     userId: currentUser.id,
+                    userName: currentUser.name,
+                    userAvatar: currentUser.avatar,
                     views: 0,
                     likes: 0,
                     dislikes: 0,
-                    date: new Date().toLocaleDateString('ru-RU'),
-                    url: videoUrl,
-                    fileData: fileData, // Сохраняем данные файла
-                    filename: file.name,
-                    size: file.size,
-                    uploadDate: Date.now(),
-                    needReupload: false
+                    uploadDate: new Date().toISOString(),
+                    duration: '0:00',
+                    thumbnail: generateThumbnail(file),
+                    fileSize: file.size,
+                    fileName: file.name,
+                    // Не сохраняем videoUrl в localStorage!
                 };
-
-                videos.push(video);
-                localStorage.setItem('vidflow_videos', JSON.stringify(videos));
                 
-                // Синхронизируем
-                await performSync();
-
+                // Сохраняем файл в памяти сессии
+                sessionVideoFiles.set(video.id, {
+                    file: file,
+                    url: videoUrl
+                });
+                
+                videos.push(video);
+                
+                // Сохраняем только метаданные в localStorage
+                try {
+                    localStorage.setItem('vidflow_videos', JSON.stringify(videos));
+                    showSyncNotification();
+                } catch (e) {
+                    if (e.name === 'QuotaExceededError') {
+                        handleStorageFull();
+                        return;
+                    }
+                }
+                
                 // Закрываем модальное окно
                 document.getElementById('uploadModal').style.display = 'none';
-
+                
+                // Показываем уведомление о сессии
+                showSessionNotification();
+                
+                // Обновляем список видео
                 loadVideos();
-                alert('Видео успешно загружено и синхронизировано!');
                 
             } catch (error) {
                 console.error('Ошибка загрузки видео:', error);
-                alert('Ошибка при загрузке видео. Попробуйте еще раз.');
+                alert('Произошла ошибка при загрузке видео. Попробуйте еще раз.');
+            }
+        }
+
+        function generateThumbnail(file) {
+            // Создаем простой thumbnail на основе названия файла
+            const colors = ['#ff3c3c', '#3cff3c', '#3c3cff', '#ffff3c', '#ff3cff'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            return `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="280" height="157" viewBox="0 0 280 157"><rect width="280" height="157" fill="${color}"/><text x="140" y="80" font-family="Arial" font-size="14" fill="white" text-anchor="middle">${file.name.substring(0, 20)}</text></svg>`;
+        }
+
+        function handleStorageFull() {
+            // Очистка старых данных при переполнении хранилища
+            const confirmClear = confirm('Хранилище переполнено. Очистить старые данные?');
+            if (confirmClear) {
+                // Оставляем только последние 50 видео
+                videos = videos.slice(-50);
+                localStorage.setItem('vidflow_videos', JSON.stringify(videos));
+                location.reload();
             }
         }
 
         function loadVideos() {
             videoGrid.innerHTML = '';
-
+            
             if (videos.length === 0) {
                 emptyState.style.display = 'block';
-                videoGrid.style.display = 'none';
                 return;
             }
-
+            
             emptyState.style.display = 'none';
-            videoGrid.style.display = 'grid';
-
-            videos.forEach(video => {
+            
+            // Показываем видео в обратном порядке (новые первыми)
+            const sortedVideos = [...videos].reverse();
+            
+            sortedVideos.forEach(video => {
                 const videoElement = createVideoElement(video, false);
                 videoGrid.appendChild(videoElement);
             });
         }
 
-        function createVideoElement(video, isProfile = false) {
-            const videoElement = document.createElement('div');
-            videoElement.className = 'video-card';
+        function createVideoElement(video, isProfile) {
+            const videoCard = document.createElement('div');
+            videoCard.className = 'video-card';
+            videoCard.setAttribute('data-video-id', video.id);
             
-            const channelAvatar = video.channelAvatar ? 
-                `style="background-image: url(${video.channelAvatar})"` : '';
+            const sessionData = sessionVideoFiles.get(video.id);
+            const hasVideoInSession = !!sessionData;
             
-            let deleteButton = '';
-            let reuploadBadge = '';
-            
-            // Показываем кнопку удаления только для админа Kazuha
-            if (isAdmin() && !isProfile) {
-                deleteButton = `<button class="delete-btn" onclick="event.stopPropagation(); deleteVideo(${video.id})"><i class="fas fa-trash"></i></button>`;
-            }
-            
-            // Показываем бейдж если видео требует перезагрузки
-            if (video.needReupload) {
-                reuploadBadge = `<div class="reupload-badge">Требует перезагрузки</div>`;
-            }
-            
-            videoElement.innerHTML = `
-                ${deleteButton}
-                ${reuploadBadge}
+            videoCard.innerHTML = `
                 <div class="thumbnail">
                     <div class="thumbnail-content">
-                        ${video.needReupload ? 
-                            '<i class="fas fa-exclamation-triangle" style="color: #ffd700; font-size: 2rem;"></i>' :
-                            '<i class="fas fa-play" style="color: var(--primary); font-size: 2rem;"></i>'
-                        }
+                        ${video.thumbnail ? `<img src="${video.thumbnail}" alt="${video.title}" style="width: 100%; height: 100%; object-fit: cover;">` : '<i class="fas fa-play-circle" style="font-size: 3rem; color: var(--light); opacity: 0.7;"></i>'}
                     </div>
+                    ${hasVideoInSession ? '<div class="session-badge">Сессия</div>' : ''}
+                    ${(isProfile || isAdmin()) ? '<button class="delete-btn" onclick="deleteVideo(event, ' + video.id + ')"><i class="fas fa-trash"></i></button>' : ''}
                 </div>
                 <div class="video-info">
                     <h3 class="video-title">${video.title}</h3>
                     <div class="video-card-channel">
-                        <div class="channel-avatar" ${channelAvatar}>${video.channelAvatar ? '' : video.channel.charAt(0).toUpperCase()}</div>
-                        <span>${video.channel}</span>
+                        <div class="channel-avatar" style="${video.userAvatar ? `background-image: url(${video.userAvatar})` : ''}">
+                            ${!video.userAvatar ? video.userName.charAt(0).toUpperCase() : ''}
+                        </div>
+                        <span>${video.userName}</span>
                     </div>
                     <div class="video-stats">
-                        ${video.views} просмотров • ${video.date}
-                        ${video.needReupload ? ' • <span style="color: #ffd700;">⚠️ Требует перезагрузки</span>' : ''}
+                        <span>${video.views} просмотров</span>
+                        <span>•</span>
+                        <span>${formatDate(video.uploadDate)}</span>
                     </div>
                 </div>
             `;
-
-            if (!video.needReupload) {
-                videoElement.addEventListener('click', () => playVideo(video.id));
-            } else {
-                videoElement.style.opacity = '0.7';
-                videoElement.style.cursor = 'not-allowed';
-                videoElement.addEventListener('click', () => {
-                    alert('Это видео требует повторной загрузки файла');
-                });
-            }
             
-            return videoElement;
+            videoCard.addEventListener('click', function(e) {
+                if (!e.target.closest('.delete-btn')) {
+                    playVideo(video.id);
+                }
+            });
+            
+            return videoCard;
         }
 
         function playVideo(videoId) {
             const video = videos.find(v => v.id === videoId);
             if (!video) return;
-
-            if (video.needReupload) {
-                alert('Это видео требует повторной загрузки файла');
+            
+            const sessionData = sessionVideoFiles.get(videoId);
+            
+            if (!sessionData) {
+                alert('Видео недоступно в текущей сессии. Пожалуйста, перезагрузите страницу или загрузите видео снова.');
                 return;
             }
-
-            if (!video.url) {
-                alert('Видеофайл не найден. Пожалуйста, перезагрузите видео.');
-                return;
-            }
-
+            
             currentPlayingVideo = video;
-
-            // Обновляем страницу видео
+            
+            // Обновляем счетчик просмотров
+            video.views = (video.views || 0) + 1;
+            localStorage.setItem('vidflow_videos', JSON.stringify(videos));
+            
+            // Настраиваем видео плеер
+            mainVideo.src = sessionData.url;
+            mainVideo.load();
+            
+            // Обновляем информацию о видео
             document.getElementById('videoTitlePage').textContent = video.title;
             document.getElementById('videoViewsPage').textContent = video.views + ' просмотров';
-            document.getElementById('videoDatePage').textContent = video.date;
-            document.getElementById('likeCount').textContent = video.likes;
-            document.getElementById('dislikeCount').textContent = video.dislikes;
+            document.getElementById('videoDatePage').textContent = formatDate(video.uploadDate);
+            document.getElementById('likeCount').textContent = video.likes || 0;
+            document.getElementById('dislikeCount').textContent = video.dislikes || 0;
             
             // Обновляем информацию о канале
+            document.getElementById('channelNamePage').textContent = video.userName;
+            document.getElementById('channelSubsPage').textContent = '0 подписчиков';
+            
             const channelAvatar = document.getElementById('channelAvatarPage');
-            if (video.channelAvatar) {
-                channelAvatar.style.backgroundImage = `url(${video.channelAvatar})`;
+            if (video.userAvatar) {
+                channelAvatar.style.backgroundImage = `url(${video.userAvatar})`;
                 channelAvatar.textContent = '';
             } else {
                 channelAvatar.style.backgroundImage = 'none';
-                channelAvatar.textContent = video.channel.charAt(0).toUpperCase();
+                channelAvatar.textContent = video.userName.charAt(0).toUpperCase();
             }
-            document.getElementById('channelNamePage').textContent = video.channel;
-
-            // Показываем/скрываем кнопки для админа
-            if (isAdmin()) {
-                adminControls.style.display = 'flex';
-                if (video.needReupload) {
-                    reuploadBtn.style.display = 'flex';
-                } else {
-                    reuploadBtn.style.display = 'none';
-                }
+            
+            // Показываем админ-контролы если нужно
+            if (isAdmin() || video.userId === currentUser.id) {
+                adminControls.style.display = 'block';
             } else {
                 adminControls.style.display = 'none';
             }
-
-            // Воспроизводим видео
-            mainVideo.src = video.url;
-            mainVideo.load();
             
-            // Показываем страницу видео
+            // Переключаем страницы
             homePage.style.display = 'none';
             videoPage.style.display = 'block';
             profilePage.style.display = 'none';
-
-            // Обновляем просмотры
-            video.views++;
-            localStorage.setItem('vidflow_videos', JSON.stringify(videos));
-            performSync(); // Синхронизируем после обновления просмотров
         }
 
-        function deleteVideo(videoId) {
-            if (!isAdmin()) {
-                alert('У вас нет прав для удаления видео');
+        function backToVideos() {
+            if (mainVideo.src) {
+                mainVideo.pause();
+                mainVideo.src = '';
+            }
+            
+            homePage.style.display = 'block';
+            videoPage.style.display = 'none';
+            profilePage.style.display = 'none';
+        }
+
+        function deleteVideo(event, videoId) {
+            event.stopPropagation();
+            
+            if (!confirm('Вы уверены, что хотите удалить это видео?')) {
                 return;
             }
-
-            if (confirm('Вы уверены, что хотите удалить это видео?')) {
-                const videoIndex = videos.findIndex(v => v.id === videoId);
-                if (videoIndex !== -1) {
-                    // Освобождаем Object URL
-                    if (videos[videoIndex].url) {
-                        URL.revokeObjectURL(videos[videoIndex].url);
-                    }
-                    
-                    videos.splice(videoIndex, 1);
-                    localStorage.setItem('vidflow_videos', JSON.stringify(videos));
-                    performSync();
-                    
-                    // Если удаляем текущее воспроизводимое видео, возвращаемся к списку
-                    if (currentPlayingVideo && currentPlayingVideo.id === videoId) {
-                        backToVideos();
-                    } else {
-                        loadVideos();
-                    }
-                    
-                    alert('Видео успешно удалено!');
+            
+            const videoIndex = videos.findIndex(v => v.id === videoId);
+            if (videoIndex !== -1) {
+                // Очищаем объект URL из памяти
+                const sessionData = sessionVideoFiles.get(videoId);
+                if (sessionData) {
+                    URL.revokeObjectURL(sessionData.url);
+                    sessionVideoFiles.delete(videoId);
+                }
+                
+                videos.splice(videoIndex, 1);
+                localStorage.setItem('vidflow_videos', JSON.stringify(videos));
+                showSyncNotification();
+                
+                // Обновляем интерфейс
+                if (currentPlayingVideo && currentPlayingVideo.id === videoId) {
+                    backToVideos();
+                }
+                loadVideos();
+                
+                if (profilePage.style.display === 'block') {
+                    loadProfileData();
                 }
             }
         }
 
         function deleteCurrentVideo() {
             if (currentPlayingVideo) {
-                deleteVideo(currentPlayingVideo.id);
+                deleteVideo({stopPropagation: () => {}}, currentPlayingVideo.id);
             }
         }
 
-        function reuploadVideo(videoId) {
-            const video = videos.find(v => v.id === videoId);
-            if (!video) return;
-
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = 'video/*';
-            fileInput.onchange = async function(e) {
-                if (e.target.files && e.target.files[0]) {
-                    const file = e.target.files[0];
-                    
-                    try {
-                        showSyncNotification();
-                        const videoUrl = URL.createObjectURL(file);
-                        const fileData = await fileToBase64(file);
-                        
-                        video.url = videoUrl;
-                        video.fileData = fileData;
-                        video.needReupload = false;
-                        video.filename = file.name;
-                        video.size = file.size;
-                        
-                        localStorage.setItem('vidflow_videos', JSON.stringify(videos));
-                        await performSync();
-                        
-                        loadVideos();
-                        if (currentPlayingVideo && currentPlayingVideo.id === videoId) {
-                            backToVideos();
-                        }
-                        alert('Видео успешно перезагружено!');
-                    } catch (error) {
-                        alert('Ошибка при перезагрузке видео');
-                    }
-                }
-            };
-            fileInput.click();
-        }
-
-        function reuploadCurrentVideo() {
-            if (currentPlayingVideo) {
-                reuploadVideo(currentPlayingVideo.id);
-            }
-        }
-
-        function backToVideos() {
-            videoPage.style.display = 'none';
-            homePage.style.display = 'block';
-            if (mainVideo) {
-                mainVideo.pause();
-                mainVideo.src = '';
-            }
-            loadVideos();
-        }
-
-        function showMyVideos() {
-            if (!currentUser) {
-                showAuth();
-                return;
-            }
-            
-            const myVideos = videos.filter(v => v.userId === currentUser.id);
-            videoGrid.innerHTML = '';
-
-            if (myVideos.length === 0) {
-                emptyState.style.display = 'block';
-                videoGrid.style.display = 'none';
-                emptyState.innerHTML = `
-                    <i class="fas fa-video-slash" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                    <h3>У вас пока нет видео</h3>
-                    <p>Загрузите свое первое видео!</p>
-                    <button class="upload-btn" onclick="showUploadModal()" style="margin-top: 1rem;">
-                        <i class="fas fa-upload"></i> Загрузить видео
-                    </button>
-                `;
-                return;
-            }
-
-            emptyState.style.display = 'none';
-            videoGrid.style.display = 'grid';
-
-            myVideos.forEach(video => {
-                const videoElement = createVideoElement(video, true);
-                videoGrid.appendChild(videoElement);
-            });
-
-            homePage.style.display = 'block';
-            videoPage.style.display = 'none';
-            profilePage.style.display = 'none';
-            userDropdown.classList.remove('show');
-        }
-
-        // Video actions
         function likeVideo() {
             if (currentPlayingVideo) {
-                currentPlayingVideo.likes++;
-                document.getElementById('likeCount').textContent = currentPlayingVideo.likes;
+                currentPlayingVideo.likes = (currentPlayingVideo.likes || 0) + 1;
                 localStorage.setItem('vidflow_videos', JSON.stringify(videos));
-                performSync();
+                document.getElementById('likeCount').textContent = currentPlayingVideo.likes;
+                showSyncNotification();
             }
         }
 
         function dislikeVideo() {
             if (currentPlayingVideo) {
-                currentPlayingVideo.dislikes++;
-                document.getElementById('dislikeCount').textContent = currentPlayingVideo.dislikes;
+                currentPlayingVideo.dislikes = (currentPlayingVideo.dislikes || 0) + 1;
                 localStorage.setItem('vidflow_videos', JSON.stringify(videos));
-                performSync();
+                document.getElementById('dislikeCount').textContent = currentPlayingVideo.dislikes;
+                showSyncNotification();
             }
         }
 
         function shareVideo() {
             if (currentPlayingVideo) {
-                navigator.clipboard.writeText(window.location.href).then(() => {
-                    alert('Ссылка на видео скопирована!');
+                const shareUrl = window.location.href.split('?')[0] + '?video=' + currentPlayingVideo.id;
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    alert('Ссылка на видео скопирована в буфер обмена!');
                 });
             }
         }
@@ -1650,97 +1524,165 @@
                 if (channelUser) {
                     channelUser.subscribers = (channelUser.subscribers || 0) + 1;
                     localStorage.setItem('vidflow_users', JSON.stringify(users));
-                    performSync();
-                    alert(`Вы подписались на канал ${currentPlayingVideo.channel}`);
+                    document.getElementById('channelSubsPage').textContent = channelUser.subscribers + ' подписчиков';
+                    showSyncNotification();
+                    alert(`Вы подписались на канал ${channelUser.name}!`);
                 }
             }
         }
 
-        // Avatar functions
+        function showMyVideos() {
+            const myVideos = videos.filter(v => v.userId === currentUser.id);
+            videoGrid.innerHTML = '';
+            
+            if (myVideos.length === 0) {
+                emptyState.style.display = 'block';
+                emptyState.innerHTML = `
+                    <i class="fas fa-video-slash" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                    <h3>У вас пока нет видео</h3>
+                    <p>Загрузите свое первое видео!</p>
+                    <button class="upload-btn" onclick="showUploadModal()" style="margin-top: 1rem;">
+                        <i class="fas fa-upload"></i> Загрузить видео
+                    </button>
+                `;
+            } else {
+                emptyState.style.display = 'none';
+                myVideos.reverse().forEach(video => {
+                    const videoElement = createVideoElement(video, true);
+                    videoGrid.appendChild(videoElement);
+                });
+            }
+            
+            homePage.style.display = 'block';
+            videoPage.style.display = 'none';
+            profilePage.style.display = 'none';
+        }
+
+        function showPopular() {
+            const popularVideos = [...videos].sort((a, b) => (b.views || 0) - (a.views || 0));
+            videoGrid.innerHTML = '';
+            popularVideos.forEach(video => {
+                const videoElement = createVideoElement(video, false);
+                videoGrid.appendChild(videoElement);
+            });
+            
+            homePage.style.display = 'block';
+            videoPage.style.display = 'none';
+            profilePage.style.display = 'none';
+        }
+
+        function showHistory() {
+            alert('История просмотров будет доступна в будущих обновлениях');
+        }
+
+        function showLiked() {
+            alert('Понравившиеся видео будут доступны в будущих обновлениях');
+        }
+
         function changeAvatar() {
             document.getElementById('avatarModal').style.display = 'flex';
         }
 
         function saveAvatar() {
             const fileInput = document.getElementById('avatarFile');
-            if (fileInput.files.length) {
-                const file = fileInput.files[0];
-                const avatarUrl = URL.createObjectURL(file);
-                
-                currentUser.avatar = avatarUrl;
-                localStorage.setItem('vidflow_current_user', JSON.stringify(currentUser));
-                
-                // Update user in users array
-                const userIndex = users.findIndex(u => u.id === currentUser.id);
-                if (userIndex !== -1) {
-                    users[userIndex].avatar = avatarUrl;
-                    localStorage.setItem('vidflow_users', JSON.stringify(users));
-                }
-                
-                updateUserAvatar();
-                document.getElementById('avatarModal').style.display = 'none';
-                performSync();
-                alert('Аватар успешно изменен!');
+            const file = fileInput.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentUser.avatar = e.target.result;
+                    localStorage.setItem('vidflow_current_user', JSON.stringify(currentUser));
+                    
+                    // Обновляем пользователя в общем списке
+                    const userIndex = users.findIndex(u => u.id === currentUser.id);
+                    if (userIndex !== -1) {
+                        users[userIndex].avatar = e.target.result;
+                        localStorage.setItem('vidflow_users', JSON.stringify(users));
+                    }
+                    
+                    updateUserAvatar();
+                    document.getElementById('avatarModal').style.display = 'none';
+                    showSyncNotification();
+                };
+                reader.readAsDataURL(file);
             } else {
-                alert('Выберите изображение для аватара');
+                alert('Пожалуйста, выберите изображение');
             }
         }
 
         function editProfile() {
-            const newName = prompt('Введите новое имя:', currentUser.name);
-            if (newName && newName.trim()) {
+            const newName = prompt('Введите новое имя канала:', currentUser.name);
+            if (newName && newName.trim() !== '') {
                 currentUser.name = newName.trim();
                 localStorage.setItem('vidflow_current_user', JSON.stringify(currentUser));
                 
-                // Update user in users array
+                // Обновляем в общем списке пользователей
                 const userIndex = users.findIndex(u => u.id === currentUser.id);
                 if (userIndex !== -1) {
                     users[userIndex].name = newName.trim();
                     localStorage.setItem('vidflow_users', JSON.stringify(users));
                 }
                 
-                // Update videos with new channel name
+                // Обновляем в видео
                 videos.forEach(video => {
                     if (video.userId === currentUser.id) {
-                        video.channel = newName.trim();
+                        video.userName = newName.trim();
                     }
                 });
                 localStorage.setItem('vidflow_videos', JSON.stringify(videos));
                 
                 updateUserAvatar();
-                checkAdminStatus();
                 loadProfileData();
-                performSync();
-                alert('Профиль успешно обновлен!');
+                showSyncNotification();
             }
         }
 
         function logout() {
             currentUser = null;
             localStorage.removeItem('vidflow_current_user');
+            
+            // Очищаем сессионные данные
+            sessionVideoFiles.forEach(data => {
+                URL.revokeObjectURL(data.url);
+            });
+            sessionVideoFiles.clear();
+            
             showAuth();
             userDropdown.classList.remove('show');
         }
 
-        // Placeholder functions
-        function showPopular() {
-            alert('Раздел "Популярное" в разработке');
-        }
-
-        function showHistory() {
-            alert('Раздел "История" в разработке');
-        }
-
-        function showLiked() {
-            alert('Раздел "Понравившиеся" в разработке');
-        }
-
-        // Автоматическая синхронизация каждые 30 секунд
-        setInterval(() => {
-            if (currentUser) {
-                performSync();
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 0) {
+                return 'Сегодня';
+            } else if (diffDays === 1) {
+                return 'Вчера';
+            } else if (diffDays < 7) {
+                return `${diffDays} дней назад`;
+            } else {
+                return date.toLocaleDateString('ru-RU');
             }
-        }, 500);
+        }
+
+        // Обработка параметров URL для глубоких ссылок
+        function handleUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const videoId = urlParams.get('video');
+            
+            if (videoId) {
+                const video = videos.find(v => v.id === parseInt(videoId));
+                if (video) {
+                    playVideo(video.id);
+                }
+            }
+        }
+
+        // Инициализация обработки URL параметров
+        setTimeout(handleUrlParams, 100);
     </script>
 </body>
 </html>
