@@ -32,7 +32,7 @@
             overflow-x: hidden;
         }
 
-        .sync-notification {
+        .notification {
             position: fixed;
             top: 70px;
             right: 20px;
@@ -54,45 +54,6 @@
             border-radius: var(--radius);
             z-index: 1001;
             display: none;
-        }
-
-        .sync-status {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--dark-light);
-            padding: 10px 15px;
-            border-radius: var(--radius);
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            z-index: 1000;
-        }
-
-        .sync-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #4CAF50;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-        .storage-info {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: var(--dark-light);
-            padding: 10px 15px;
-            border-radius: var(--radius);
-            font-size: 0.8rem;
-            z-index: 1000;
         }
 
         /* Header */
@@ -349,6 +310,16 @@
             padding-bottom: 56.25%;
             background-color: var(--dark-light);
             position: relative;
+            overflow: hidden;
+        }
+
+        .thumbnail img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .thumbnail-content {
@@ -360,6 +331,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            background: rgba(0,0,0,0.3);
         }
 
         .video-info {
@@ -633,21 +605,6 @@
             cursor: pointer;
         }
 
-        .profile-avatar:hover::after {
-            content: '✎';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-
         .profile-info h1 {
             font-size: 2rem;
             margin-bottom: 0.5rem;
@@ -750,75 +707,47 @@
             }
         }
 
-        /* Progress Bar */
-        .upload-progress {
+        .url-input {
             width: 100%;
-            height: 20px;
-            background: var(--dark-light);
-            border-radius: 10px;
-            margin: 10px 0;
-            overflow: hidden;
-            display: none;
+            padding: 12px;
+            border: none;
+            border-radius: var(--radius);
+            background: var(--dark);
+            color: var(--light);
+            margin-bottom: 1rem;
         }
 
-        .upload-progress-bar {
-            height: 100%;
-            background: var(--primary);
-            border-radius: 10px;
-            transition: width 0.3s ease;
-            width: 0%;
+        .video-sources {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1rem;
         }
 
-        .chunk-info {
-            font-size: 0.8rem;
-            color: var(--gray);
-            margin-top: 5px;
-            text-align: center;
-        }
-
-        .storage-warning {
-            background: #ff9800;
-            color: black;
+        .source-btn {
+            flex: 1;
             padding: 10px;
+            background: var(--dark);
+            border: 1px solid var(--gray);
+            color: var(--light);
             border-radius: var(--radius);
-            margin: 10px 0;
-            display: none;
+            cursor: pointer;
+            transition: var(--transition);
         }
 
-        .large-file-notice {
+        .source-btn.active {
             background: var(--primary);
-            color: white;
-            padding: 15px;
-            border-radius: var(--radius);
-            margin: 15px 0;
-            text-align: center;
+            border-color: var(--primary);
         }
     </style>
 </head>
 <body>
     <!-- Нотификации -->
-    <div class="sync-notification" id="syncNotification">
-        <i class="fas fa-sync-alt"></i> Синхронизация...
+    <div class="notification" id="notification">
+        <i class="fas fa-check"></i> <span id="notificationText"></span>
     </div>
 
     <div class="error-notification" id="errorNotification">
         <i class="fas fa-exclamation-triangle"></i> <span id="errorText"></span>
-    </div>
-
-    <!-- Прогресс бар -->
-    <div class="upload-progress" id="uploadProgress">
-        <div class="upload-progress-bar" id="uploadProgressBar"></div>
-        <div class="chunk-info" id="chunkInfo"></div>
-    </div>
-
-    <!-- Статус синхронизации -->
-    <div class="sync-status" id="syncStatus">
-        <div class="sync-indicator" id="syncIndicator"></div>
-        <span>Локальное хранилище</span>
-    </div>
-
-    <div class="storage-info" id="storageInfo">
-        <i class="fas fa-database"></i> <span id="storageText">Загрузка...</span>
     </div>
 
     <!-- Auth Modal -->
@@ -910,9 +839,9 @@
                         <span>Импорт данных</span>
                     </div>
                     <div class="dropdown-divider"></div>
-                    <div class="dropdown-item" onclick="clearStorage()">
+                    <div class="dropdown-item" onclick="clearData()">
                         <i class="fas fa-trash"></i>
-                        <span>Очистить кэш</span>
+                        <span>Очистить данные</span>
                     </div>
                     <div class="dropdown-item" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i>
@@ -950,9 +879,9 @@
                 <div class="empty-state" id="emptyState" style="display: none;">
                     <i class="fas fa-video-slash" style="font-size: 3rem; margin-bottom: 1rem;"></i>
                     <h3>Видео пока нет</h3>
-                    <p>Будьте первым, кто загрузит видео!</p>
+                    <p>Добавьте первое видео через форму загрузки!</p>
                     <button class="upload-btn" onclick="showUploadModal()" style="margin-top: 1rem;">
-                        <i class="fas fa-upload"></i> Загрузить первое видео
+                        <i class="fas fa-upload"></i> Добавить видео
                     </button>
                 </div>
             </main>
@@ -970,7 +899,7 @@
                         </button>
                     </div>
                     <div class="video-player">
-                        <video id="mainVideo" controls></video>
+                        <video id="mainVideo" controls poster="" style="width: 100%; height: 500px;"></video>
                     </div>
                     
                     <div class="video-info-page">
@@ -1005,7 +934,7 @@
                 </button>
 
                 <div class="profile-header">
-                    <div class="profile-avatar" id="profileAvatar" onclick="changeAvatar()"></div>
+                    <div class="profile-avatar" id="profileAvatar"></div>
                     <div class="profile-info">
                         <h1 id="profileName"></h1>
                         <div class="profile-stats">
@@ -1029,13 +958,21 @@
     <!-- Upload Modal -->
     <div class="modal" id="uploadModal">
         <div class="modal-content">
-            <h2 style="margin-bottom: 1rem;">Загрузить видео</h2>
+            <h2 style="margin-bottom: 1rem;">Добавить видео</h2>
             
-            <div class="upload-area" id="uploadArea">
-                <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                <p id="uploadText">Нажмите для выбора видео файла</p>
-                <p class="file-size-info">Максимальный размер: 100MB</p>
-                <input type="file" id="videoFile" accept="video/*" class="file-input">
+            <div class="video-sources">
+                <button class="source-btn active" id="urlSourceBtn" onclick="showUrlSource()">Ссылка на видео</button>
+                <button class="source-btn" id="embedSourceBtn" onclick="showEmbedSource()">Iframe вставка</button>
+            </div>
+
+            <div id="urlSource">
+                <input type="url" id="videoUrl" class="url-input" placeholder="https://example.com/video.mp4">
+                <input type="url" id="thumbnailUrl" class="url-input" placeholder="https://example.com/thumbnail.jpg (опционально)">
+            </div>
+
+            <div id="embedSource" style="display: none;">
+                <textarea id="embedCode" class="url-input" placeholder='<iframe src="..." width="640" height="360"></iframe>' style="height: 100px; resize: vertical;"></textarea>
+                <input type="url" id="embedThumbnail" class="url-input" placeholder="https://example.com/thumbnail.jpg (опционально)">
             </div>
 
             <div class="form-group">
@@ -1046,22 +983,8 @@
                 <textarea id="uploadDescription" placeholder="Описание видео" style="width: 100%; height: 100px; padding: 12px; border: none; border-radius: var(--radius); background: var(--dark); color: var(--light);"></textarea>
             </div>
 
-            <button class="auth-submit" onclick="uploadVideo()">Загрузить видео</button>
+            <button class="auth-submit" onclick="addVideo()">Добавить видео</button>
             <button class="auth-submit" style="background: var(--dark-light); margin-top: 10px;" onclick="hideUploadModal()">Отмена</button>
-        </div>
-    </div>
-
-    <!-- Avatar Change Modal -->
-    <div class="modal" id="avatarModal">
-        <div class="modal-content">
-            <h2 style="margin-bottom: 1rem;">Изменить аватар</h2>
-            <div class="upload-area" onclick="document.getElementById('avatarFile').click()">
-                <i class="fas fa-user-circle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                <p>Выберите изображение для аватара</p>
-                <input type="file" id="avatarFile" accept="image/*" style="display: none;">
-            </div>
-            <button class="auth-submit" onclick="saveAvatar()">Сохранить аватар</button>
-            <button class="auth-submit" style="background: var(--dark-light); margin-top: 10px;" onclick="hideAvatarModal()">Отмена</button>
         </div>
     </div>
 
@@ -1074,9 +997,6 @@
         let videos = [];
         let currentUser = null;
         let currentPlayingVideo = null;
-        let db = null;
-        const DB_NAME = 'VidFlowDB';
-        const DB_VERSION = 2;
 
         // DOM elements
         const authContainer = document.getElementById('authContainer');
@@ -1092,79 +1012,74 @@
         const userDropdown = document.getElementById('userDropdown');
         const adminBadge = document.getElementById('adminBadge');
         const adminControls = document.getElementById('adminControls');
-        const syncNotification = document.getElementById('syncNotification');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notificationText');
         const errorNotification = document.getElementById('errorNotification');
         const errorText = document.getElementById('errorText');
-        const storageInfo = document.getElementById('storageInfo');
-        const storageText = document.getElementById('storageText');
         const searchInput = document.getElementById('searchInput');
-        const uploadProgress = document.getElementById('uploadProgress');
-        const uploadProgressBar = document.getElementById('uploadProgressBar');
-        const chunkInfo = document.getElementById('chunkInfo');
+
+        // Демо видео для примера
+        const DEMO_VIDEOS = [
+            {
+                id: '1',
+                title: 'Демо видео - Красивые пейзажи',
+                description: 'Завораживающие виды природы в высоком качестве',
+                videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+                thumbnailUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg',
+                userId: '1',
+                views: 150,
+                likes: 25,
+                dislikes: 2,
+                uploadDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+            },
+            {
+                id: '2', 
+                title: 'Демо видео - Городская жизнь',
+                description: 'Яркие моменты из жизни большого города',
+                videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+                thumbnailUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ElephantsDream.jpg',
+                userId: '1',
+                views: 89,
+                likes: 15,
+                dislikes: 1,
+                uploadDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+            }
+        ];
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             initializeApp();
         });
 
-        async function initializeApp() {
-            await initIndexedDB();
-            await loadLocalData();
+        function initializeApp() {
+            loadLocalData();
             checkAuth();
             setupEventListeners();
-            updateStorageInfo();
         }
 
-        function initIndexedDB() {
-            return new Promise((resolve, reject) {
-                const request = indexedDB.open(DB_NAME, DB_VERSION);
-                
-                request.onerror = () => reject(request.error);
-                request.onsuccess = () => {
-                    db = request.result;
-                    resolve();
-                };
-                
-                request.onupgradeneeded = (event) => {
-                    const db = event.target.result;
-                    
-                    // Создаем хранилище для видео
-                    if (!db.objectStoreNames.contains('videos')) {
-                        const videoStore = db.createObjectStore('videos', { keyPath: 'id' });
-                        videoStore.createIndex('userId', 'userId', { unique: false });
-                    }
-                    
-                    // Создаем хранилище для пользователей
-                    if (!db.objectStoreNames.contains('users')) {
-                        db.createObjectStore('users', { keyPath: 'id' });
-                    }
-                    
-                    // Создаем хранилище для метаданных
-                    if (!db.objectStoreNames.contains('metadata')) {
-                        db.createObjectStore('metadata', { keyPath: 'id' });
-                    }
-                };
-            });
-        }
-
-        async function loadLocalData() {
+        function loadLocalData() {
             try {
-                // Загружаем пользователей из IndexedDB
-                const loadedUsers = await getAllFromStore('users');
-                if (loadedUsers.length > 0) {
-                    users = loadedUsers;
+                const savedUsers = localStorage.getItem('vidflow_users');
+                const savedVideos = localStorage.getItem('vidflow_videos');
+                
+                if (savedUsers) {
+                    users = JSON.parse(savedUsers);
                 } else {
                     createDefaultAdmin();
                 }
 
-                // Загружаем видео из IndexedDB
-                const loadedVideos = await getAllFromStore('videos');
-                videos = loadedVideos;
+                if (savedVideos) {
+                    videos = JSON.parse(savedVideos);
+                } else {
+                    // Добавляем демо видео при первом запуске
+                    videos = DEMO_VIDEOS;
+                    saveVideos();
+                }
 
             } catch (error) {
                 console.error('Error loading data:', error);
                 users = [];
-                videos = [];
+                videos = DEMO_VIDEOS;
                 createDefaultAdmin();
             }
         }
@@ -1182,86 +1097,18 @@
                 subscriptions: []
             };
             users.push(adminUser);
-            saveToStore('users', adminUser);
+            saveUsers();
         }
 
-        // IndexedDB helper functions
-        function saveToStore(storeName, data) {
-            return new Promise((resolve, reject) => {
-                if (!db) {
-                    reject('DB not initialized');
-                    return;
-                }
-                const transaction = db.transaction([storeName], 'readwrite');
-                const store = transaction.objectStore(storeName);
-                const request = store.put(data);
-                
-                request.onsuccess = () => resolve();
-                request.onerror = () => reject(request.error);
-            });
+        function saveUsers() {
+            localStorage.setItem('vidflow_users', JSON.stringify(users));
         }
 
-        function getFromStore(storeName, id) {
-            return new Promise((resolve) => {
-                if (!db) {
-                    resolve(null);
-                    return;
-                }
-                const transaction = db.transaction([storeName], 'readonly');
-                const store = transaction.objectStore(storeName);
-                const request = store.get(id);
-                
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => resolve(null);
-            });
-        }
-
-        function getAllFromStore(storeName) {
-            return new Promise((resolve) => {
-                if (!db) {
-                    resolve([]);
-                    return;
-                }
-                const transaction = db.transaction([storeName], 'readonly');
-                const store = transaction.objectStore(storeName);
-                const request = store.getAll();
-                
-                request.onsuccess = () => resolve(request.result || []);
-                request.onerror = () => resolve([]);
-            });
-        }
-
-        function deleteFromStore(storeName, id) {
-            return new Promise((resolve) => {
-                if (!db) {
-                    resolve();
-                    return;
-                }
-                const transaction = db.transaction([storeName], 'readwrite');
-                const store = transaction.objectStore(storeName);
-                const request = store.delete(id);
-                
-                request.onsuccess = () => resolve();
-                request.onerror = () => resolve();
-            });
+        function saveVideos() {
+            localStorage.setItem('vidflow_videos', JSON.stringify(videos));
         }
 
         function setupEventListeners() {
-            // Video file input
-            document.getElementById('videoFile').addEventListener('change', function(e) {
-                if (e.target.files.length > 0) {
-                    const file = e.target.files[0];
-                    document.getElementById('uploadText').textContent = `Выбран файл: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
-                    
-                    // Проверка размера файла
-                    if (file.size > 100 * 1024 * 1024) { // 100MB limit
-                        showError('Файл слишком большой. Максимальный размер: 100MB');
-                        e.target.value = '';
-                        document.getElementById('uploadText').textContent = 'Нажмите для выбора видео файла';
-                    }
-                }
-            });
-
             // Search on enter
             searchInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
@@ -1327,7 +1174,7 @@
             document.getElementById('registerForm').style.display = 'block';
         }
 
-        async function login() {
+        function login() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
@@ -1336,13 +1183,13 @@
                 currentUser = user;
                 localStorage.setItem('vidflow_currentUser', JSON.stringify(user));
                 showApp();
-                showSuccess('Вход выполнен успешно!');
+                showNotification('Вход выполнен успешно!');
             } else {
                 showError('Неверный email или пароль');
             }
         }
 
-        async function register() {
+        function register() {
             const username = document.getElementById('registerName').value;
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
@@ -1376,12 +1223,12 @@
             };
 
             users.push(newUser);
-            await saveToStore('users', newUser);
+            saveUsers();
             
             currentUser = newUser;
             localStorage.setItem('vidflow_currentUser', JSON.stringify(newUser));
             showApp();
-            showSuccess('Регистрация выполнена успешно!');
+            showNotification('Регистрация выполнена успешно!');
         }
 
         function logout() {
@@ -1409,8 +1256,7 @@
             userDropdown.classList.remove('show');
         }
 
-        async function loadVideos() {
-            videos = await getAllFromStore('videos');
+        function loadVideos() {
             renderVideos();
         }
 
@@ -1443,6 +1289,10 @@
 
             card.innerHTML = `
                 <div class="thumbnail">
+                    ${video.thumbnailUrl ? 
+                        `<img src="${video.thumbnailUrl}" alt="${video.title}" onerror="this.style.display='none'">` : 
+                        ''
+                    }
                     <div class="thumbnail-content">
                         <i class="fas fa-play" style="font-size: 2rem; color: white;"></i>
                     </div>
@@ -1466,7 +1316,7 @@
             return card;
         }
 
-        async function playVideo(videoId) {
+        function playVideo(videoId) {
             const video = videos.find(v => v.id === videoId);
             if (!video) return;
 
@@ -1510,12 +1360,11 @@
                 adminControls.style.display = 'none';
             }
 
-            // Load video from IndexedDB
-            const videoData = await getFromStore('videos', videoId);
-            if (videoData && videoData.videoBlob) {
-                const blob = new Blob([videoData.videoBlob], { type: 'video/mp4' });
-                const url = URL.createObjectURL(blob);
-                mainVideo.src = url;
+            // Load video
+            const videoPlayer = document.getElementById('mainVideo');
+            videoPlayer.src = video.videoUrl;
+            if (video.thumbnailUrl) {
+                videoPlayer.poster = video.thumbnailUrl;
             }
 
             // Switch to video page
@@ -1525,8 +1374,7 @@
 
             // Increment views
             video.views = (video.views || 0) + 1;
-            await saveToStore('videos', video);
-            videos = videos.map(v => v.id === videoId ? video : v);
+            saveVideos();
         }
 
         function backToVideos() {
@@ -1534,10 +1382,9 @@
             videoPage.style.display = 'none';
             profilePage.style.display = 'none';
             
-            if (mainVideo.src) {
-                URL.revokeObjectURL(mainVideo.src);
-                mainVideo.src = '';
-            }
+            const videoPlayer = document.getElementById('mainVideo');
+            videoPlayer.src = '';
+            videoPlayer.poster = '';
         }
 
         function showUploadModal() {
@@ -1551,91 +1398,101 @@
         function hideUploadModal() {
             document.getElementById('uploadModal').style.display = 'none';
             // Reset form
-            document.getElementById('videoFile').value = '';
+            document.getElementById('videoUrl').value = '';
+            document.getElementById('thumbnailUrl').value = '';
+            document.getElementById('embedCode').value = '';
+            document.getElementById('embedThumbnail').value = '';
             document.getElementById('uploadTitle').value = '';
             document.getElementById('uploadDescription').value = '';
-            document.getElementById('uploadText').textContent = 'Нажмите для выбора видео файла';
         }
 
-        function hideAvatarModal() {
-            document.getElementById('avatarModal').style.display = 'none';
+        function showUrlSource() {
+            document.getElementById('urlSource').style.display = 'block';
+            document.getElementById('embedSource').style.display = 'none';
+            document.getElementById('urlSourceBtn').classList.add('active');
+            document.getElementById('embedSourceBtn').classList.remove('active');
         }
 
-        async function uploadVideo() {
-            const fileInput = document.getElementById('videoFile');
+        function showEmbedSource() {
+            document.getElementById('urlSource').style.display = 'none';
+            document.getElementById('embedSource').style.display = 'block';
+            document.getElementById('urlSourceBtn').classList.remove('active');
+            document.getElementById('embedSourceBtn').classList.add('active');
+        }
+
+        function addVideo() {
             const titleInput = document.getElementById('uploadTitle');
             const descriptionInput = document.getElementById('uploadDescription');
             
-            if (!fileInput.files.length) {
-                showError('Выберите видео файл');
-                return;
-            }
-
             if (!titleInput.value.trim()) {
                 showError('Введите название видео');
                 return;
             }
 
-            const file = fileInput.files[0];
-            const videoId = Date.now().toString();
+            let videoUrl = '';
+            let thumbnailUrl = '';
 
-            try {
-                showSyncNotification();
-                uploadProgress.style.display = 'block';
-                uploadProgressBar.style.width = '0%';
-                chunkInfo.textContent = 'Подготовка к загрузке...';
+            if (document.getElementById('urlSource').style.display !== 'none') {
+                // URL source
+                videoUrl = document.getElementById('videoUrl').value;
+                thumbnailUrl = document.getElementById('thumbnailUrl').value;
                 
-                // Read file as ArrayBuffer
-                const arrayBuffer = await readFileAsArrayBuffer(file);
+                if (!videoUrl) {
+                    showError('Введите ссылку на видео');
+                    return;
+                }
+            } else {
+                // Embed source
+                const embedCode = document.getElementById('embedCode').value;
+                thumbnailUrl = document.getElementById('embedThumbnail').value;
                 
-                // Create video object
-                const newVideo = {
-                    id: videoId,
-                    title: titleInput.value,
-                    description: descriptionInput.value,
-                    userId: currentUser.id,
-                    views: 0,
-                    likes: 0,
-                    dislikes: 0,
-                    uploadDate: new Date().toISOString(),
-                    videoBlob: arrayBuffer
-                };
+                if (!embedCode) {
+                    showError('Введите iframe код');
+                    return;
+                }
 
-                // Save to IndexedDB
-                await saveToStore('videos', newVideo);
-                videos.push(newVideo);
-                
-                uploadProgress.style.display = 'none';
-                hideUploadModal();
-                loadVideos();
-                showSuccess('Видео успешно загружено!');
-                
-            } catch (error) {
-                uploadProgress.style.display = 'none';
-                showError('Ошибка при загрузке видео: ' + error.message);
+                // Extract src from iframe
+                const srcMatch = embedCode.match(/src="([^"]*)"/);
+                if (srcMatch) {
+                    videoUrl = srcMatch[1];
+                } else {
+                    showError('Неверный формат iframe кода');
+                    return;
+                }
             }
+
+            const newVideo = {
+                id: Date.now().toString(),
+                title: titleInput.value,
+                description: descriptionInput.value,
+                videoUrl: videoUrl,
+                thumbnailUrl: thumbnailUrl || '',
+                userId: currentUser.id,
+                views: 0,
+                likes: 0,
+                dislikes: 0,
+                uploadDate: new Date().toISOString()
+            };
+
+            videos.push(newVideo);
+            saveVideos();
+            
+            hideUploadModal();
+            loadVideos();
+            showNotification('Видео успешно добавлено!');
         }
 
-        function readFileAsArrayBuffer(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsArrayBuffer(file);
-            });
-        }
-
-        async function deleteVideo(videoId) {
+        function deleteVideo(videoId) {
             if (!confirm('Вы уверены, что хотите удалить это видео?')) return;
 
             const videoIndex = videos.findIndex(v => v.id === videoId);
             if (videoIndex === -1) return;
 
             videos.splice(videoIndex, 1);
-            await deleteFromStore('videos', videoId);
+            saveVideos();
             
             loadVideos();
-            showSuccess('Видео удалено');
+            showNotification('Видео удалено');
         }
 
         function deleteCurrentVideo() {
@@ -1645,7 +1502,7 @@
             }
         }
 
-        async function renderProfile() {
+        function renderProfile() {
             if (!currentUser) return;
 
             document.getElementById('profileName').textContent = currentUser.username;
@@ -1672,49 +1529,17 @@
             });
         }
 
-        function changeAvatar() {
-            document.getElementById('avatarModal').style.display = 'flex';
-        }
-
-        async function saveAvatar() {
-            const fileInput = document.getElementById('avatarFile');
-            if (!fileInput.files.length) {
-                showError('Выберите изображение');
-                return;
-            }
-
-            const file = fileInput.files[0];
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                currentUser.avatar = e.target.result;
-                
-                // Update in users array and IndexedDB
-                const userIndex = users.findIndex(u => u.id === currentUser.id);
-                if (userIndex !== -1) {
-                    users[userIndex].avatar = e.target.result;
-                    await saveToStore('users', currentUser);
-                }
-                
-                localStorage.setItem('vidflow_currentUser', JSON.stringify(currentUser));
-                
-                updateUserInterface();
-                document.getElementById('avatarModal').style.display = 'none';
-                showSuccess('Аватар обновлен');
-            };
-            reader.readAsDataURL(file);
-        }
-
-        async function likeVideo() {
+        function likeVideo() {
             if (!currentPlayingVideo) return;
             currentPlayingVideo.likes = (currentPlayingVideo.likes || 0) + 1;
-            await saveToStore('videos', currentPlayingVideo);
+            saveVideos();
             document.getElementById('likeCount').textContent = currentPlayingVideo.likes;
         }
 
-        async function dislikeVideo() {
+        function dislikeVideo() {
             if (!currentPlayingVideo) return;
             currentPlayingVideo.dislikes = (currentPlayingVideo.dislikes || 0) + 1;
-            await saveToStore('videos', currentPlayingVideo);
+            saveVideos();
             document.getElementById('dislikeCount').textContent = currentPlayingVideo.dislikes;
         }
 
@@ -1723,11 +1548,11 @@
             
             const shareUrl = window.location.href.split('?')[0];
             navigator.clipboard.writeText(shareUrl).then(() => {
-                showSuccess('Ссылка на видео скопирована в буфер обмена');
+                showNotification('Ссылка на видео скопирована в буфер обмена');
             });
         }
 
-        async function subscribeChannel() {
+        function subscribeChannel() {
             if (!currentPlayingVideo || !currentUser) return;
             
             const videoUser = users.find(u => u.id === currentPlayingVideo.userId);
@@ -1744,19 +1569,18 @@
                     videoUser.subscribers = Math.max(0, (videoUser.subscribers || 0) - 1);
                     document.getElementById('subscribeBtn').textContent = 'Подписаться';
                     document.getElementById('subscribeBtn').style.background = 'var(--primary)';
-                    showSuccess(`Вы отписались от ${videoUser.username}`);
+                    showNotification(`Вы отписались от ${videoUser.username}`);
                 } else {
                     // Subscribe
                     currentUser.subscriptions.push(videoUser.id);
                     videoUser.subscribers = (videoUser.subscribers || 0) + 1;
                     document.getElementById('subscribeBtn').textContent = 'Отписаться';
                     document.getElementById('subscribeBtn').style.background = 'var(--gray)';
-                    showSuccess(`Вы подписались на ${videoUser.username}`);
+                    showNotification(`Вы подписались на ${videoUser.username}`);
                 }
 
                 // Save changes
-                await saveToStore('users', currentUser);
-                await saveToStore('users', videoUser);
+                saveUsers();
                 localStorage.setItem('vidflow_currentUser', JSON.stringify(currentUser));
                 
                 document.getElementById('channelSubsPage').textContent = `${videoUser.subscribers} подписчиков`;
@@ -1784,12 +1608,10 @@
         }
 
         function showHistory() {
-            // В реальном приложении здесь была бы история просмотров
             showHomePage();
         }
 
         function showLiked() {
-            // В реальном приложении здесь были бы понравившиеся видео
             showHomePage();
         }
 
@@ -1824,11 +1646,12 @@
             renderFilteredVideos(filteredVideos, `Результаты поиска: "${query}"`);
         }
 
-        function showSyncNotification() {
-            syncNotification.style.display = 'block';
+        function showNotification(message) {
+            notificationText.textContent = message;
+            notification.style.display = 'block';
             setTimeout(() => {
-                syncNotification.style.display = 'none';
-            }, 2000);
+                notification.style.display = 'none';
+            }, 3000);
         }
 
         function showError(message) {
@@ -1839,45 +1662,21 @@
             }, 3000);
         }
 
-        function showSuccess(message) {
-            // Можно добавить уведомление об успехе
-            console.log('Success:', message);
-            // Временное уведомление
-            alert(message);
-        }
-
-        async function clearStorage() {
+        function clearData() {
             if (confirm('Вы уверены, что хотите очистить все данные? Это удалит все видео и аккаунты.')) {
-                try {
-                    // Clear IndexedDB
-                    const stores = ['videos', 'users', 'metadata'];
-                    for (const storeName of stores) {
-                        const transaction = db.transaction([storeName], 'readwrite');
-                        const store = transaction.objectStore(storeName);
-                        await store.clear();
-                    }
-                    
-                    // Clear localStorage
-                    localStorage.clear();
-                    
-                    showSuccess('Все данные очищены');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
-                } catch (error) {
-                    showError('Ошибка при очистке данных');
-                }
+                localStorage.clear();
+                showNotification('Все данные очищены');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
             }
         }
 
-        async function exportData() {
+        function exportData() {
             try {
                 const exportData = {
                     users: users,
-                    videos: videos.map(v => ({
-                        ...v,
-                        videoBlob: undefined // Не экспортируем большие blob-объекты
-                    })),
+                    videos: videos,
                     exportDate: new Date().toISOString(),
                     version: '1.0'
                 };
@@ -1894,7 +1693,7 @@
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 
-                showSuccess('Данные экспортированы');
+                showNotification('Данные экспортированы');
             } catch (error) {
                 showError('Ошибка при экспорте данных');
             }
@@ -1904,13 +1703,13 @@
             document.getElementById('importFile').click();
         }
 
-        document.getElementById('importFile').addEventListener('change', async function(e) {
+        document.getElementById('importFile').addEventListener('change', function(e) {
             if (e.target.files.length === 0) return;
             
             const file = e.target.files[0];
             const reader = new FileReader();
             
-            reader.onload = async function(event) {
+            reader.onload = function(event) {
                 try {
                     const importData = JSON.parse(event.target.result);
                     
@@ -1919,28 +1718,13 @@
                     }
                     
                     if (confirm('Это перезапишет все текущие данные. Продолжить?')) {
-                        // Clear existing data
-                        const stores = ['videos', 'users'];
-                        for (const storeName of stores) {
-                            const transaction = db.transaction([storeName], 'readwrite');
-                            const store = transaction.objectStore(storeName);
-                            await store.clear();
-                        }
-                        
-                        // Import users
-                        for (const user of importData.users) {
-                            await saveToStore('users', user);
-                        }
-                        
-                        // Import videos
-                        for (const video of importData.videos) {
-                            await saveToStore('videos', video);
-                        }
-                        
                         users = importData.users;
                         videos = importData.videos;
                         
-                        showSuccess('Данные успешно импортированы');
+                        saveUsers();
+                        saveVideos();
+                        
+                        showNotification('Данные успешно импортированы');
                         setTimeout(() => {
                             location.reload();
                         }, 1000);
@@ -1954,25 +1738,6 @@
             e.target.value = ''; // Reset input
         });
 
-        async function updateStorageInfo() {
-            try {
-                let totalSize = 0;
-                const allVideos = await getAllFromStore('videos');
-                
-                allVideos.forEach(video => {
-                    if (video.videoBlob) {
-                        totalSize += video.videoBlob.byteLength || 0;
-                    }
-                });
-                
-                const sizeInMB = (totalSize / (1024 * 1024)).toFixed(2);
-                const videoCount = allVideos.length;
-                storageText.textContent = `${videoCount} видео, ${sizeInMB} MB`;
-            } catch (error) {
-                console.error('Error updating storage info:', error);
-            }
-        }
-
         // Close modals when clicking outside
         window.onclick = function(event) {
             const modals = document.getElementsByClassName('modal');
@@ -1983,30 +1748,8 @@
             }
         }
 
-        // Demo data for first time users
-        async function createDemoData() {
-            if (videos.length === 0 && users.length <= 1) {
-                // Create demo user
-                const demoUser = {
-                    id: '2',
-                    username: 'DemoCreator',
-                    email: 'demo@vidflow.com',
-                    password: 'demo123',
-                    avatar: '',
-                    subscribers: 15,
-                    isAdmin: false,
-                    joinDate: new Date().toISOString(),
-                    subscriptions: []
-                };
-                users.push(demoUser);
-                await saveToStore('users', demoUser);
-                
-                showSuccess('Демо данные созданы! Используйте admin@vidflow.com / admin123 для входа');
-            }
-        }
-
-        // Initialize demo data after app load
-        setTimeout(createDemoData, 1000);
+        // Initialize with URL source by default
+        showUrlSource();
     </script>
 </body>
 </html>
