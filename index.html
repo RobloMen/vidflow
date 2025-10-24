@@ -6,7 +6,6 @@
     <title>VidFlow - Видеоплатформа</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Все стили остаются такими же как в предыдущем коде */
         * {
             margin: 0;
             padding: 0;
@@ -57,9 +56,743 @@
             display: none;
         }
 
-        /* Все остальные стили остаются без изменений */
-        /* ... */
+        .sync-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--dark-light);
+            padding: 10px 15px;
+            border-radius: var(--radius);
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+        }
 
+        .sync-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .storage-info {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: var(--dark-light);
+            padding: 10px 15px;
+            border-radius: var(--radius);
+            font-size: 0.8rem;
+            z-index: 1000;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--dark);
+            padding: 12px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--light);
+            cursor: pointer;
+        }
+
+        .logo i {
+            color: var(--primary);
+        }
+
+        .search-bar {
+            display: flex;
+            width: 50%;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 20px;
+            background-color: var(--dark-light);
+            color: var(--light);
+            font-size: 0.9rem;
+        }
+
+        .search-bar button {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            padding: 5px 12px;
+            border: none;
+            border-radius: 20px;
+            background-color: var(--dark-light);
+            color: var(--gray);
+            cursor: pointer;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            position: relative;
+        }
+
+        .upload-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .admin-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ffd700;
+            color: #000;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        /* Dropdown Menu */
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--dark-light);
+            border-radius: var(--radius);
+            padding: 10px 0;
+            min-width: 200px;
+            box-shadow: var(--shadow);
+            display: none;
+            z-index: 1000;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--light);
+            text-decoration: none;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--gray);
+            margin: 5px 0;
+            opacity: 0.3;
+        }
+
+        /* Main Layout */
+        .container {
+            display: flex;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            padding: 20px 0;
+            background-color: var(--dark);
+            height: calc(100vh - 60px);
+            position: sticky;
+            top: 60px;
+            overflow-y: auto;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .sidebar-menu li {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            border-radius: var(--radius);
+            margin-bottom: 5px;
+            transition: var(--transition);
+        }
+
+        .sidebar-menu li:hover {
+            background-color: var(--dark-light);
+        }
+
+        .sidebar-menu li.active {
+            background-color: var(--dark-light);
+            color: var(--primary);
+        }
+
+        .sidebar-menu li i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background-color: var(--dark);
+            min-height: calc(100vh - 60px);
+        }
+
+        /* Video Grid */
+        .section-title {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .video-card {
+            background-color: var(--dark);
+            border-radius: var(--radius);
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 10;
+        }
+
+        .video-card:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .thumbnail {
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%;
+            background-color: var(--dark-light);
+            position: relative;
+        }
+
+        .thumbnail-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-info {
+            padding: 12px;
+        }
+
+        .video-title {
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-card-channel {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .channel-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .video-stats {
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+
+        /* Video Player Page */
+        .video-page {
+            display: none;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: none;
+            color: var(--light);
+            cursor: pointer;
+            padding: 10px 0;
+            margin-bottom: 15px;
+            transition: var(--transition);
+        }
+
+        .back-btn:hover {
+            color: var(--primary);
+        }
+
+        .video-player-container {
+            background-color: var(--dark);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .admin-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+        }
+
+        .delete-video-btn {
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+        }
+
+        .video-player {
+            width: 100%;
+            background-color: #000;
+        }
+
+        .video-player video {
+            width: 100%;
+            height: 500px;
+        }
+
+        .video-info-page {
+            padding: 20px;
+        }
+
+        .video-title-page {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .video-stats-page {
+            display: flex;
+            gap: 20px;
+            color: var(--gray);
+            margin-bottom: 15px;
+        }
+
+        .video-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 8px 15px;
+            border-radius: 20px;
+            background-color: var(--dark-light);
+            transition: var(--transition);
+        }
+
+        .action-btn:hover {
+            color: var(--light);
+            background-color: var(--primary);
+        }
+
+        .channel-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--dark-light);
+        }
+
+        .channel-avatar.large {
+            width: 50px;
+            height: 50px;
+            font-size: 1.1rem;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .subscribe-btn {
+            margin-left: auto;
+            padding: 8px 20px;
+            background-color: var(--primary);
+            color: var(--light);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: var(--transition);
+        }
+
+        .subscribe-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Auth */
+        .auth-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-box {
+            background: var(--dark-light);
+            padding: 2rem;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: var(--radius);
+            background: var(--dark);
+            color: var(--light);
+        }
+
+        .auth-submit {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: var(--transition);
+        }
+
+        .auth-submit:hover {
+            background: var(--primary-dark);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--gray);
+        }
+
+        .auth-switch a {
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        /* Profile Page */
+        .profile-page {
+            display: none;
+        }
+
+        .profile-header {
+            background: var(--dark-light);
+            padding: 2rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .profile-avatar:hover::after {
+            content: '✎';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .profile-info h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 2rem;
+            color: var(--gray);
+        }
+
+        .edit-profile-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        /* Upload Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--dark-light);
+            padding: 2rem;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--gray);
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+        }
+
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-size-info {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .thumbnail-preview {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: var(--radius);
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--gray);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .search-bar {
+                display: none;
+            }
+            .sidebar {
+                display: none;
+            }
+        }
+
+        /* Progress Bar */
+        .upload-progress {
+            width: 100%;
+            height: 20px;
+            background: var(--dark-light);
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+            display: none;
+        }
+
+        .upload-progress-bar {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .chunk-info {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        .storage-warning {
+            background: #ff9800;
+            color: black;
+            padding: 10px;
+            border-radius: var(--radius);
+            margin: 10px 0;
+            display: none;
+        }
+
+        .large-file-notice {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            border-radius: var(--radius);
+            margin: 15px 0;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -70,6 +803,12 @@
 
     <div class="error-notification" id="errorNotification">
         <i class="fas fa-exclamation-triangle"></i> <span id="errorText"></span>
+    </div>
+
+    <!-- Прогресс бар -->
+    <div class="upload-progress" id="uploadProgress">
+        <div class="upload-progress-bar" id="uploadProgressBar"></div>
+        <div class="chunk-info" id="chunkInfo"></div>
     </div>
 
     <!-- Статус синхронизации -->
@@ -359,6 +1098,9 @@
         const storageInfo = document.getElementById('storageInfo');
         const storageText = document.getElementById('storageText');
         const searchInput = document.getElementById('searchInput');
+        const uploadProgress = document.getElementById('uploadProgress');
+        const uploadProgressBar = document.getElementById('uploadProgressBar');
+        const chunkInfo = document.getElementById('chunkInfo');
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -374,7 +1116,7 @@
         }
 
         function initIndexedDB() {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve, reject) {
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
                 
                 request.onerror = () => reject(request.error);
@@ -839,6 +1581,9 @@
 
             try {
                 showSyncNotification();
+                uploadProgress.style.display = 'block';
+                uploadProgressBar.style.width = '0%';
+                chunkInfo.textContent = 'Подготовка к загрузке...';
                 
                 // Read file as ArrayBuffer
                 const arrayBuffer = await readFileAsArrayBuffer(file);
@@ -860,11 +1605,13 @@
                 await saveToStore('videos', newVideo);
                 videos.push(newVideo);
                 
+                uploadProgress.style.display = 'none';
                 hideUploadModal();
                 loadVideos();
                 showSuccess('Видео успешно загружено!');
                 
             } catch (error) {
+                uploadProgress.style.display = 'none';
                 showError('Ошибка при загрузке видео: ' + error.message);
             }
         }
