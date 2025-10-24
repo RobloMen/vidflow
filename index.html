@@ -121,6 +121,18 @@
             background-position: center;
         }
 
+        .admin-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ffd700;
+            color: #000;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
         /* Dropdown Menu */
         .dropdown-menu {
             position: absolute;
@@ -237,10 +249,34 @@
             overflow: hidden;
             cursor: pointer;
             transition: var(--transition);
+            position: relative;
         }
 
         .video-card:hover {
             transform: translateY(-5px);
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 10;
+        }
+
+        .video-card:hover .delete-btn {
+            opacity: 1;
         }
 
         .thumbnail {
@@ -328,6 +364,27 @@
             border-radius: var(--radius);
             overflow: hidden;
             margin-bottom: 20px;
+            position: relative;
+        }
+
+        .admin-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+        }
+
+        .delete-video-btn {
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
         }
 
         .video-player {
@@ -595,6 +652,12 @@
             cursor: pointer;
         }
 
+        .file-size-info {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
         /* Empty State */
         .empty-state {
             text-align: center;
@@ -679,7 +742,9 @@
                 <button class="upload-btn" onclick="showUploadModal()">
                     <i class="fas fa-upload"></i> Загрузить
                 </button>
-                <div class="user-avatar" id="userAvatar" onclick="toggleUserMenu()"></div>
+                <div class="user-avatar" id="userAvatar" onclick="toggleUserMenu()">
+                    <div class="admin-badge" id="adminBadge" style="display: none;">ADMIN</div>
+                </div>
                 
                 <!-- User Dropdown Menu -->
                 <div class="dropdown-menu" id="userDropdown">
@@ -738,6 +803,11 @@
                 </button>
 
                 <div class="video-player-container">
+                    <div class="admin-controls" id="adminControls" style="display: none;">
+                        <button class="delete-video-btn" onclick="deleteCurrentVideo()">
+                            <i class="fas fa-trash"></i> Удалить видео
+                        </button>
+                    </div>
                     <div class="video-player">
                         <video id="mainVideo" controls></video>
                     </div>
@@ -803,6 +873,7 @@
             <div class="upload-area" id="uploadArea">
                 <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 1rem;"></i>
                 <p id="uploadText">Нажмите для выбора видео файла</p>
+                <p class="file-size-info">Максимальный размер: 10 ГБ</p>
                 <input type="file" id="videoFile" accept="video/*" class="file-input">
             </div>
 
@@ -852,6 +923,8 @@
         const userDropdown = document.getElementById('userDropdown');
         const videoFileInput = document.getElementById('videoFile');
         const uploadText = document.getElementById('uploadText');
+        const adminBadge = document.getElementById('adminBadge');
+        const adminControls = document.getElementById('adminControls');
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -870,10 +943,14 @@
             // Обработчик выбора файла видео
             videoFileInput.addEventListener('change', function(e) {
                 if (e.target.files && e.target.files[0]) {
-                    const fileName = e.target.files[0].name;
+                    const file = e.target.files[0];
+                    const fileName = file.name;
+                    const fileSize = (file.size / (1024 * 1024 * 1024)).toFixed(2); // Размер в ГБ
+                    
                     uploadText.innerHTML = `
                         <i class="fas fa-check-circle" style="color: #4CAF50; font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
                         <p>Файл "${fileName}" выбран</p>
+                        <p style="font-size: 0.8rem; color: var(--gray);">Размер: ${fileSize} ГБ</p>
                         <p style="font-size: 0.8rem; color: var(--gray);">Нажмите для выбора другого файла</p>
                     `;
                 }
@@ -897,6 +974,7 @@
             authContainer.style.display = 'none';
             appContainer.style.display = 'block';
             updateUserAvatar();
+            checkAdminStatus();
             showHomePage();
         }
 
@@ -908,6 +986,19 @@
                 userAvatar.style.backgroundImage = 'none';
                 userAvatar.textContent = currentUser.name.charAt(0).toUpperCase();
             }
+        }
+
+        function checkAdminStatus() {
+            // Проверяем, является ли пользователь Kazuha
+            if (currentUser && currentUser.name === 'Kazuha') {
+                adminBadge.style.display = 'block';
+            } else {
+                adminBadge.style.display = 'none';
+            }
+        }
+
+        function isAdmin() {
+            return currentUser && currentUser.name === 'Kazuha';
         }
 
         function showLogin() {
@@ -1008,7 +1099,7 @@
             // Load profile videos
             profileVideoGrid.innerHTML = '';
             myVideos.forEach(video => {
-                const videoElement = createVideoElement(video);
+                const videoElement = createVideoElement(video, true);
                 profileVideoGrid.appendChild(videoElement);
             });
         }
@@ -1044,9 +1135,9 @@
 
             const file = videoFileInput.files[0];
 
-            // Проверяем размер файла (максимум 100MB)
-            if (file.size > 100 * 1024 * 1024) {
-                alert('Файл слишком большой. Максимальный размер: 100MB');
+            // Проверяем размер файла (максимум 10 ГБ)
+            if (file.size > 10 * 1024 * 1024 * 1024) {
+                alert('Файл слишком большой. Максимальный размер: 10 ГБ');
                 return;
             }
 
@@ -1092,19 +1183,26 @@
             videoGrid.style.display = 'grid';
 
             videos.forEach(video => {
-                const videoElement = createVideoElement(video);
+                const videoElement = createVideoElement(video, false);
                 videoGrid.appendChild(videoElement);
             });
         }
 
-        function createVideoElement(video) {
+        function createVideoElement(video, isProfile = false) {
             const videoElement = document.createElement('div');
             videoElement.className = 'video-card';
             
             const channelAvatar = video.channelAvatar ? 
                 `style="background-image: url(${video.channelAvatar})"` : '';
             
+            let deleteButton = '';
+            // Показываем кнопку удаления только для админа Kazuha
+            if (isAdmin() && !isProfile) {
+                deleteButton = `<button class="delete-btn" onclick="deleteVideo(${video.id})"><i class="fas fa-trash"></i></button>`;
+            }
+            
             videoElement.innerHTML = `
+                ${deleteButton}
                 <div class="thumbnail">
                     <div class="thumbnail-content">
                         <i class="fas fa-play" style="color: var(--primary); font-size: 2rem;"></i>
@@ -1150,6 +1248,13 @@
             }
             document.getElementById('channelNamePage').textContent = video.channel;
 
+            // Показываем/скрываем кнопку удаления для админа
+            if (isAdmin()) {
+                adminControls.style.display = 'block';
+            } else {
+                adminControls.style.display = 'none';
+            }
+
             // Play video
             if (video.url) {
                 mainVideo.src = video.url;
@@ -1167,6 +1272,41 @@
             // Update views
             video.views++;
             localStorage.setItem('vidflow_videos', JSON.stringify(videos));
+        }
+
+        function deleteVideo(videoId) {
+            if (!isAdmin()) {
+                alert('У вас нет прав для удаления видео');
+                return;
+            }
+
+            if (confirm('Вы уверены, что хотите удалить это видео?')) {
+                const videoIndex = videos.findIndex(v => v.id === videoId);
+                if (videoIndex !== -1) {
+                    // Освобождаем Object URL
+                    if (videos[videoIndex].url) {
+                        URL.revokeObjectURL(videos[videoIndex].url);
+                    }
+                    
+                    videos.splice(videoIndex, 1);
+                    localStorage.setItem('vidflow_videos', JSON.stringify(videos));
+                    
+                    // Если удаляем текущее воспроизводимое видео, возвращаемся к списку
+                    if (currentPlayingVideo && currentPlayingVideo.id === videoId) {
+                        backToVideos();
+                    } else {
+                        loadVideos();
+                    }
+                    
+                    alert('Видео успешно удалено!');
+                }
+            }
+        }
+
+        function deleteCurrentVideo() {
+            if (currentPlayingVideo) {
+                deleteVideo(currentPlayingVideo.id);
+            }
         }
 
         function backToVideos() {
@@ -1206,7 +1346,7 @@
             videoGrid.style.display = 'grid';
 
             myVideos.forEach(video => {
-                const videoElement = createVideoElement(video);
+                const videoElement = createVideoElement(video, true);
                 videoGrid.appendChild(videoElement);
             });
 
@@ -1303,6 +1443,7 @@
                 localStorage.setItem('vidflow_videos', JSON.stringify(videos));
                 
                 updateUserAvatar();
+                checkAdminStatus();
                 loadProfileData();
                 alert('Профиль успешно обновлен!');
             }
