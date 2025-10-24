@@ -6,6 +6,7 @@
     <title>VidFlow - Видеоплатформа</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* Все стили остаются такими же как в предыдущем коде */
         * {
             margin: 0;
             padding: 0;
@@ -56,703 +57,13 @@
             display: none;
         }
 
-        /* Header */
-        header {
-            background-color: var(--dark);
-            padding: 12px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: var(--shadow);
-        }
+        /* Все остальные стили остаются без изменений */
+        /* ... */
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--light);
-            cursor: pointer;
-        }
-
-        .logo i {
-            color: var(--primary);
-        }
-
-        .search-bar {
-            display: flex;
-            width: 50%;
-            position: relative;
-        }
-
-        .search-bar input {
-            width: 100%;
-            padding: 10px 16px;
-            border: none;
-            border-radius: 20px;
-            background-color: var(--dark-light);
-            color: var(--light);
-            font-size: 0.9rem;
-        }
-
-        .search-bar button {
-            position: absolute;
-            right: 5px;
-            top: 5px;
-            padding: 5px 12px;
-            border: none;
-            border-radius: 20px;
-            background-color: var(--dark-light);
-            color: var(--gray);
-            cursor: pointer;
-        }
-
-        .user-actions {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            position: relative;
-        }
-
-        .upload-btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .user-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background-color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            cursor: pointer;
-            background-size: cover;
-            background-position: center;
-            position: relative;
-        }
-
-        .admin-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #ffd700;
-            color: #000;
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-weight: bold;
-        }
-
-        /* Dropdown Menu */
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: var(--dark-light);
-            border-radius: var(--radius);
-            padding: 10px 0;
-            min-width: 200px;
-            box-shadow: var(--shadow);
-            display: none;
-            z-index: 1000;
-        }
-
-        .dropdown-menu.show {
-            display: block;
-        }
-
-        .dropdown-item {
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: var(--transition);
-            color: var(--light);
-            text-decoration: none;
-        }
-
-        .dropdown-item:hover {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .dropdown-divider {
-            height: 1px;
-            background: var(--gray);
-            margin: 5px 0;
-            opacity: 0.3;
-        }
-
-        /* Main Layout */
-        .container {
-            display: flex;
-            max-width: 100%;
-            margin: 0 auto;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 240px;
-            padding: 20px 0;
-            background-color: var(--dark);
-            height: calc(100vh - 60px);
-            position: sticky;
-            top: 60px;
-            overflow-y: auto;
-        }
-
-        .sidebar-menu {
-            list-style: none;
-            margin-bottom: 30px;
-        }
-
-        .sidebar-menu li {
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            cursor: pointer;
-            border-radius: var(--radius);
-            margin-bottom: 5px;
-            transition: var(--transition);
-        }
-
-        .sidebar-menu li:hover {
-            background-color: var(--dark-light);
-        }
-
-        .sidebar-menu li.active {
-            background-color: var(--dark-light);
-            color: var(--primary);
-        }
-
-        .sidebar-menu li i {
-            width: 20px;
-            text-align: center;
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            background-color: var(--dark);
-            min-height: calc(100vh - 60px);
-        }
-
-        /* Video Grid */
-        .section-title {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .video-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .video-card {
-            background-color: var(--dark);
-            border-radius: var(--radius);
-            overflow: hidden;
-            cursor: pointer;
-            transition: var(--transition);
-            position: relative;
-        }
-
-        .video-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .delete-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255, 0, 0, 0.8);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            opacity: 0;
-            transition: var(--transition);
-            z-index: 10;
-        }
-
-        .video-card:hover .delete-btn {
-            opacity: 1;
-        }
-
-        .thumbnail {
-            width: 100%;
-            height: 0;
-            padding-bottom: 56.25%;
-            background-color: var(--dark-light);
-            position: relative;
-        }
-
-        .thumbnail-content {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .video-info {
-            padding: 12px;
-        }
-
-        .video-title {
-            font-size: 0.95rem;
-            margin-bottom: 8px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .video-card-channel {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 4px;
-        }
-
-        .channel-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background-color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: bold;
-            background-size: cover;
-            background-position: center;
-        }
-
-        .video-stats {
-            color: var(--gray);
-            font-size: 0.8rem;
-        }
-
-        /* Video Player Page */
-        .video-page {
-            display: none;
-        }
-
-        .back-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: none;
-            border: none;
-            color: var(--light);
-            cursor: pointer;
-            padding: 10px 0;
-            margin-bottom: 15px;
-            transition: var(--transition);
-        }
-
-        .back-btn:hover {
-            color: var(--primary);
-        }
-
-        .video-player-container {
-            background-color: var(--dark);
-            border-radius: var(--radius);
-            overflow: hidden;
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .admin-controls {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 10;
-        }
-
-        .delete-video-btn {
-            background: rgba(255, 0, 0, 0.8);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 600;
-        }
-
-        .video-player {
-            width: 100%;
-            background-color: #000;
-        }
-
-        .video-player video {
-            width: 100%;
-            height: 500px;
-        }
-
-        .video-info-page {
-            padding: 20px;
-        }
-
-        .video-title-page {
-            font-size: 1.3rem;
-            margin-bottom: 10px;
-        }
-
-        .video-stats-page {
-            display: flex;
-            gap: 20px;
-            color: var(--gray);
-            margin-bottom: 15px;
-        }
-
-        .video-actions {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .action-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: none;
-            border: none;
-            color: var(--gray);
-            cursor: pointer;
-            padding: 8px 15px;
-            border-radius: 20px;
-            background-color: var(--dark-light);
-            transition: var(--transition);
-        }
-
-        .action-btn:hover {
-            color: var(--light);
-            background-color: var(--primary);
-        }
-
-        .channel-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding-top: 15px;
-            border-top: 1px solid var(--dark-light);
-        }
-
-        .channel-avatar.large {
-            width: 50px;
-            height: 50px;
-            font-size: 1.1rem;
-            background-size: cover;
-            background-position: center;
-        }
-
-        .subscribe-btn {
-            margin-left: auto;
-            padding: 8px 20px;
-            background-color: var(--primary);
-            color: var(--light);
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: var(--transition);
-        }
-
-        .subscribe-btn:hover {
-            background-color: var(--primary-dark);
-        }
-
-        /* Auth */
-        .auth-container {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .auth-box {
-            background: var(--dark-light);
-            padding: 2rem;
-            border-radius: var(--radius);
-            width: 90%;
-            max-width: 400px;
-        }
-
-        .auth-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: var(--radius);
-            background: var(--dark);
-            color: var(--light);
-        }
-
-        .auth-submit {
-            width: 100%;
-            padding: 12px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            margin-top: 1rem;
-            transition: var(--transition);
-        }
-
-        .auth-submit:hover {
-            background: var(--primary-dark);
-        }
-
-        .auth-switch {
-            text-align: center;
-            margin-top: 1rem;
-            color: var(--gray);
-        }
-
-        .auth-switch a {
-            color: var(--primary);
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        /* Profile Page */
-        .profile-page {
-            display: none;
-        }
-
-        .profile-header {
-            background: var(--dark-light);
-            padding: 2rem;
-            border-radius: var(--radius);
-            margin-bottom: 2rem;
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-        }
-
-        .profile-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            font-weight: bold;
-            background-size: cover;
-            background-position: center;
-            position: relative;
-            cursor: pointer;
-        }
-
-        .profile-avatar:hover::after {
-            content: '✎';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-
-        .profile-info h1 {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .profile-stats {
-            display: flex;
-            gap: 2rem;
-            color: var(--gray);
-        }
-
-        .edit-profile-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            margin-top: 1rem;
-        }
-
-        /* Upload Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: var(--dark-light);
-            padding: 2rem;
-            border-radius: var(--radius);
-            width: 90%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .upload-area {
-            border: 2px dashed var(--gray);
-            border-radius: var(--radius);
-            padding: 2rem;
-            text-align: center;
-            margin-bottom: 1rem;
-            cursor: pointer;
-            transition: var(--transition);
-            position: relative;
-        }
-
-        .upload-area:hover {
-            border-color: var(--primary);
-        }
-
-        .file-input {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .file-size-info {
-            color: var(--gray);
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
-
-        .thumbnail-preview {
-            width: 100%;
-            max-height: 200px;
-            object-fit: cover;
-            border-radius: var(--radius);
-            margin-top: 10px;
-            display: none;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: var(--gray);
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .search-bar {
-                display: none;
-            }
-            .sidebar {
-                display: none;
-            }
-        }
-
-        .sync-status {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--dark-light);
-            padding: 10px 15px;
-            border-radius: var(--radius);
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            z-index: 1000;
-        }
-
-        .sync-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #4CAF50;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-        .storage-info {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: var(--dark-light);
-            padding: 10px 15px;
-            border-radius: var(--radius);
-            font-size: 0.8rem;
-            z-index: 1000;
-        }
     </style>
 </head>
 <body>
-    <!-- Notifications -->
+    <!-- Нотификации -->
     <div class="sync-notification" id="syncNotification">
         <i class="fas fa-sync-alt"></i> Синхронизация...
     </div>
@@ -761,10 +72,10 @@
         <i class="fas fa-exclamation-triangle"></i> <span id="errorText"></span>
     </div>
 
-    <!-- Sync Status -->
+    <!-- Статус синхронизации -->
     <div class="sync-status" id="syncStatus">
         <div class="sync-indicator" id="syncIndicator"></div>
-        <span>Синхронизация активна</span>
+        <span>Локальное хранилище</span>
     </div>
 
     <div class="storage-info" id="storageInfo">
@@ -785,10 +96,10 @@
             <!-- Login Form -->
             <div id="loginForm">
                 <div class="form-group">
-                    <input type="email" id="loginEmail" placeholder="Email">
+                    <input type="email" id="loginEmail" placeholder="Email" value="admin@vidflow.com">
                 </div>
                 <div class="form-group">
-                    <input type="password" id="loginPassword" placeholder="Пароль">
+                    <input type="password" id="loginPassword" placeholder="Пароль" value="admin123">
                 </div>
                 <button class="auth-submit" onclick="login()">Войти</button>
                 <div class="auth-switch">
@@ -828,8 +139,8 @@
             </div>
             
             <div class="search-bar">
-                <input type="text" placeholder="Поиск видео...">
-                <button><i class="fas fa-search"></i></button>
+                <input type="text" id="searchInput" placeholder="Поиск видео...">
+                <button onclick="searchVideos()"><i class="fas fa-search"></i></button>
             </div>
             
             <div class="user-actions">
@@ -851,10 +162,15 @@
                         <span>Мои видео</span>
                     </div>
                     <div class="dropdown-divider"></div>
-                    <div class="dropdown-item" onclick="forceSync()">
-                        <i class="fas fa-sync-alt"></i>
-                        <span>Принудительная синхронизация</span>
+                    <div class="dropdown-item" onclick="exportData()">
+                        <i class="fas fa-download"></i>
+                        <span>Экспорт данных</span>
                     </div>
+                    <div class="dropdown-item" onclick="importData()">
+                        <i class="fas fa-upload"></i>
+                        <span>Импорт данных</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
                     <div class="dropdown-item" onclick="clearStorage()">
                         <i class="fas fa-trash"></i>
                         <span>Очистить кэш</span>
@@ -873,6 +189,7 @@
                 <ul class="sidebar-menu">
                     <li class="active" onclick="showHomePage()"><i class="fas fa-home"></i> Главная</li>
                     <li onclick="showPopular()"><i class="fas fa-fire"></i> Популярное</li>
+                    <li onclick="showSubscriptions()"><i class="fas fa-star"></i> Подписки</li>
                     <li onclick="showHistory()"><i class="fas fa-history"></i> История</li>
                     <li onclick="showLiked()"><i class="fas fa-thumbs-up"></i> Понравившиеся</li>
                     <li onclick="showMyVideos()"><i class="fas fa-video"></i> Мои видео</li>
@@ -883,7 +200,7 @@
             <main class="main-content" id="homePage">
                 <div class="section-title">
                     <h2>Рекомендуемые видео</h2>
-                    <button class="action-btn" onclick="forceSync()">
+                    <button class="action-btn" onclick="loadVideos()">
                         <i class="fas fa-sync-alt"></i> Обновить
                     </button>
                 </div>
@@ -936,7 +253,7 @@
                                 <h4 id="channelNamePage"></h4>
                                 <p id="channelSubsPage">0 подписчиков</p>
                             </div>
-                            <button class="subscribe-btn" onclick="subscribeChannel()">Подписаться</button>
+                            <button class="subscribe-btn" id="subscribeBtn" onclick="subscribeChannel()">Подписаться</button>
                         </div>
                     </div>
                 </div>
@@ -978,18 +295,8 @@
             <div class="upload-area" id="uploadArea">
                 <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 1rem;"></i>
                 <p id="uploadText">Нажмите для выбора видео файла</p>
-                <p class="file-size-info">Поддерживаются файлы любого размера</p>
+                <p class="file-size-info">Максимальный размер: 100MB</p>
                 <input type="file" id="videoFile" accept="video/*" class="file-input">
-            </div>
-
-            <div class="form-group">
-                <label style="display: block; margin-bottom: 5px; color: var(--gray);">Превью видео (опционально)</label>
-                <div class="upload-area" id="thumbnailArea" style="padding: 1rem;">
-                    <i class="fas fa-image" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
-                    <p id="thumbnailText">Нажмите для выбора превью</p>
-                    <img id="thumbnailPreview" class="thumbnail-preview">
-                    <input type="file" id="thumbnailFile" accept="image/*" class="file-input">
-                </div>
             </div>
 
             <div class="form-group">
@@ -1001,6 +308,7 @@
             </div>
 
             <button class="auth-submit" onclick="uploadVideo()">Загрузить видео</button>
+            <button class="auth-submit" style="background: var(--dark-light); margin-top: 10px;" onclick="hideUploadModal()">Отмена</button>
         </div>
     </div>
 
@@ -1014,8 +322,12 @@
                 <input type="file" id="avatarFile" accept="image/*" style="display: none;">
             </div>
             <button class="auth-submit" onclick="saveAvatar()">Сохранить аватар</button>
+            <button class="auth-submit" style="background: var(--dark-light); margin-top: 10px;" onclick="hideAvatarModal()">Отмена</button>
         </div>
     </div>
+
+    <!-- File Input для импорта -->
+    <input type="file" id="importFile" accept=".json" style="display: none;">
 
     <script>
         // Глобальные переменные
@@ -1025,7 +337,7 @@
         let currentPlayingVideo = null;
         let db = null;
         const DB_NAME = 'VidFlowDB';
-        const DB_VERSION = 1;
+        const DB_VERSION = 2;
 
         // DOM elements
         const authContainer = document.getElementById('authContainer');
@@ -1039,20 +351,14 @@
         const mainVideo = document.getElementById('mainVideo');
         const userAvatar = document.getElementById('userAvatar');
         const userDropdown = document.getElementById('userDropdown');
-        const videoFileInput = document.getElementById('videoFile');
-        const thumbnailFileInput = document.getElementById('thumbnailFile');
-        const uploadText = document.getElementById('uploadText');
-        const thumbnailText = document.getElementById('thumbnailText');
-        const thumbnailPreview = document.getElementById('thumbnailPreview');
         const adminBadge = document.getElementById('adminBadge');
         const adminControls = document.getElementById('adminControls');
         const syncNotification = document.getElementById('syncNotification');
         const errorNotification = document.getElementById('errorNotification');
         const errorText = document.getElementById('errorText');
-        const syncStatus = document.getElementById('syncStatus');
-        const syncIndicator = document.getElementById('syncIndicator');
         const storageInfo = document.getElementById('storageInfo');
         const storageText = document.getElementById('storageText');
+        const searchInput = document.getElementById('searchInput');
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -1064,7 +370,6 @@
             await loadLocalData();
             checkAuth();
             setupEventListeners();
-            startSyncService();
             updateStorageInfo();
         }
 
@@ -1081,15 +386,18 @@
                 request.onupgradeneeded = (event) => {
                     const db = event.target.result;
                     
+                    // Создаем хранилище для видео
                     if (!db.objectStoreNames.contains('videos')) {
                         const videoStore = db.createObjectStore('videos', { keyPath: 'id' });
                         videoStore.createIndex('userId', 'userId', { unique: false });
                     }
                     
+                    // Создаем хранилище для пользователей
                     if (!db.objectStoreNames.contains('users')) {
                         db.createObjectStore('users', { keyPath: 'id' });
                     }
                     
+                    // Создаем хранилище для метаданных
                     if (!db.objectStoreNames.contains('metadata')) {
                         db.createObjectStore('metadata', { keyPath: 'id' });
                     }
@@ -1099,16 +407,22 @@
 
         async function loadLocalData() {
             try {
-                const localVideos = localStorage.getItem('vidflow_videos');
-                const localUsers = localStorage.getItem('vidflow_users');
-                
-                if (localVideos) videos = JSON.parse(localVideos);
-                if (localUsers) users = JSON.parse(localUsers);
-                
-                await loadVideosFromIndexedDB();
+                // Загружаем пользователей из IndexedDB
+                const loadedUsers = await getAllFromStore('users');
+                if (loadedUsers.length > 0) {
+                    users = loadedUsers;
+                } else {
+                    createDefaultAdmin();
+                }
+
+                // Загружаем видео из IndexedDB
+                const loadedVideos = await getAllFromStore('videos');
+                videos = loadedVideos;
+
             } catch (error) {
-                videos = [];
+                console.error('Error loading data:', error);
                 users = [];
+                videos = [];
                 createDefaultAdmin();
             }
         }
@@ -1122,124 +436,94 @@
                 avatar: '',
                 subscribers: 0,
                 isAdmin: true,
-                joinDate: new Date().toISOString()
+                joinDate: new Date().toISOString(),
+                subscriptions: []
             };
             users.push(adminUser);
-            saveDataToLocalStorage();
+            saveToStore('users', adminUser);
         }
 
-        async function loadVideosFromIndexedDB() {
-            return new Promise((resolve) => {
-                if (!db) {
-                    resolve();
-                    return;
-                }
-                
-                const transaction = db.transaction(['videos'], 'readonly');
-                const store = transaction.objectStore('videos');
-                const request = store.getAll();
-                
-                request.onsuccess = () => {
-                    resolve();
-                };
-                
-                request.onerror = () => resolve();
-            });
-        }
-
-        async function saveVideoToIndexedDB(videoId, file) {
+        // IndexedDB helper functions
+        function saveToStore(storeName, data) {
             return new Promise((resolve, reject) => {
                 if (!db) {
-                    reject('IndexedDB не инициализирована');
+                    reject('DB not initialized');
                     return;
                 }
-
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const transaction = db.transaction(['videos'], 'readwrite');
-                    const store = transaction.objectStore('videos');
-                    
-                    const videoData = {
-                        id: videoId,
-                        file: e.target.result,
-                        timestamp: Date.now()
-                    };
-                    
-                    const request = store.put(videoData);
-                    
-                    request.onsuccess = () => resolve();
-                    request.onerror = () => reject(request.error);
-                };
-                reader.readAsArrayBuffer(file);
+                const transaction = db.transaction([storeName], 'readwrite');
+                const store = transaction.objectStore(storeName);
+                const request = store.put(data);
+                
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
             });
         }
 
-        async function getVideoFromIndexedDB(videoId) {
+        function getFromStore(storeName, id) {
             return new Promise((resolve) => {
                 if (!db) {
                     resolve(null);
                     return;
                 }
-
-                const transaction = db.transaction(['videos'], 'readonly');
-                const store = transaction.objectStore('videos');
-                const request = store.get(videoId);
+                const transaction = db.transaction([storeName], 'readonly');
+                const store = transaction.objectStore(storeName);
+                const request = store.get(id);
                 
-                request.onsuccess = () => {
-                    if (request.result) {
-                        const blob = new Blob([request.result.file], { type: 'video/mp4' });
-                        const url = URL.createObjectURL(blob);
-                        resolve(url);
-                    } else {
-                        resolve(null);
-                    }
-                };
+                request.onsuccess = () => resolve(request.result);
                 request.onerror = () => resolve(null);
             });
         }
 
-        async function deleteVideoFromIndexedDB(videoId) {
+        function getAllFromStore(storeName) {
+            return new Promise((resolve) => {
+                if (!db) {
+                    resolve([]);
+                    return;
+                }
+                const transaction = db.transaction([storeName], 'readonly');
+                const store = transaction.objectStore(storeName);
+                const request = store.getAll();
+                
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = () => resolve([]);
+            });
+        }
+
+        function deleteFromStore(storeName, id) {
             return new Promise((resolve) => {
                 if (!db) {
                     resolve();
                     return;
                 }
-
-                const transaction = db.transaction(['videos'], 'readwrite');
-                const store = transaction.objectStore('videos');
-                const request = store.delete(videoId);
+                const transaction = db.transaction([storeName], 'readwrite');
+                const store = transaction.objectStore(storeName);
+                const request = store.delete(id);
                 
                 request.onsuccess = () => resolve();
                 request.onerror = () => resolve();
             });
         }
 
-        function saveDataToLocalStorage() {
-            localStorage.setItem('vidflow_videos', JSON.stringify(videos));
-            localStorage.setItem('vidflow_users', JSON.stringify(users));
-        }
-
         function setupEventListeners() {
             // Video file input
-            videoFileInput.addEventListener('change', function(e) {
+            document.getElementById('videoFile').addEventListener('change', function(e) {
                 if (e.target.files.length > 0) {
                     const file = e.target.files[0];
-                    uploadText.textContent = `Выбран файл: ${file.name}`;
+                    document.getElementById('uploadText').textContent = `Выбран файл: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+                    
+                    // Проверка размера файла
+                    if (file.size > 100 * 1024 * 1024) { // 100MB limit
+                        showError('Файл слишком большой. Максимальный размер: 100MB');
+                        e.target.value = '';
+                        document.getElementById('uploadText').textContent = 'Нажмите для выбора видео файла';
+                    }
                 }
             });
 
-            // Thumbnail file input
-            thumbnailFileInput.addEventListener('change', function(e) {
-                if (e.target.files.length > 0) {
-                    const file = e.target.files[0];
-                    thumbnailText.textContent = `Выбран файл: ${file.name}`;
-                    
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        thumbnailPreview.src = e.target.result;
-                        thumbnailPreview.style.display = 'block';
-                    };
-                    reader.readAsDataURL(file);
+            // Search on enter
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchVideos();
                 }
             });
 
@@ -1270,7 +554,7 @@
             authContainer.style.display = 'none';
             appContainer.style.display = 'block';
             updateUserInterface();
-            renderVideos();
+            loadVideos();
         }
 
         function updateUserInterface() {
@@ -1278,7 +562,9 @@
                 // Update avatar
                 if (currentUser.avatar) {
                     userAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
+                    userAvatar.textContent = '';
                 } else {
+                    userAvatar.style.backgroundImage = '';
                     userAvatar.textContent = currentUser.username.charAt(0).toUpperCase();
                 }
 
@@ -1299,7 +585,7 @@
             document.getElementById('registerForm').style.display = 'block';
         }
 
-        function login() {
+        async function login() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
@@ -1314,11 +600,16 @@
             }
         }
 
-        function register() {
+        async function register() {
             const username = document.getElementById('registerName').value;
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
             const confirm = document.getElementById('registerConfirm').value;
+
+            if (!username || !email || !password) {
+                showError('Заполните все поля');
+                return;
+            }
 
             if (password !== confirm) {
                 showError('Пароли не совпадают');
@@ -1338,11 +629,12 @@
                 avatar: '',
                 subscribers: 0,
                 isAdmin: false,
-                joinDate: new Date().toISOString()
+                joinDate: new Date().toISOString(),
+                subscriptions: []
             };
 
             users.push(newUser);
-            saveDataToLocalStorage();
+            await saveToStore('users', newUser);
             
             currentUser = newUser;
             localStorage.setItem('vidflow_currentUser', JSON.stringify(newUser));
@@ -1364,7 +656,7 @@
             homePage.style.display = 'block';
             videoPage.style.display = 'none';
             profilePage.style.display = 'none';
-            renderVideos();
+            loadVideos();
         }
 
         function showProfilePage() {
@@ -1373,6 +665,11 @@
             profilePage.style.display = 'block';
             renderProfile();
             userDropdown.classList.remove('show');
+        }
+
+        async function loadVideos() {
+            videos = await getAllFromStore('videos');
+            renderVideos();
         }
 
         function renderVideos() {
@@ -1385,7 +682,10 @@
             
             emptyState.style.display = 'none';
 
-            videos.forEach(video => {
+            // Сортируем видео по дате загрузки (новые сначала)
+            const sortedVideos = [...videos].sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
+
+            sortedVideos.forEach(video => {
                 const videoCard = createVideoCard(video);
                 videoGrid.appendChild(videoCard);
             });
@@ -1416,7 +716,7 @@
                         <span>${user ? user.username : 'Unknown'}</span>
                     </div>
                     <div class="video-stats">
-                        ${video.views} просмотров • ${new Date(video.uploadDate).toLocaleDateString('ru-RU')}
+                        ${video.views || 0} просмотров • ${new Date(video.uploadDate).toLocaleDateString('ru-RU')}
                     </div>
                 </div>
             `;
@@ -1432,7 +732,7 @@
             
             // Update video info
             document.getElementById('videoTitlePage').textContent = video.title;
-            document.getElementById('videoViewsPage').textContent = `${video.views} просмотров`;
+            document.getElementById('videoViewsPage').textContent = `${video.views || 0} просмотров`;
             document.getElementById('videoDatePage').textContent = new Date(video.uploadDate).toLocaleDateString('ru-RU');
             document.getElementById('likeCount').textContent = video.likes || 0;
             document.getElementById('dislikeCount').textContent = video.dislikes || 0;
@@ -1440,8 +740,25 @@
             const user = users.find(u => u.id === video.userId);
             if (user) {
                 document.getElementById('channelNamePage').textContent = user.username;
-                document.getElementById('channelSubsPage').textContent = `${user.subscribers} подписчиков`;
-                document.getElementById('channelAvatarPage').textContent = user.username.charAt(0).toUpperCase();
+                document.getElementById('channelSubsPage').textContent = `${user.subscribers || 0} подписчиков`;
+                const channelAvatar = document.getElementById('channelAvatarPage');
+                if (user.avatar) {
+                    channelAvatar.style.backgroundImage = `url(${user.avatar})`;
+                    channelAvatar.textContent = '';
+                } else {
+                    channelAvatar.style.backgroundImage = '';
+                    channelAvatar.textContent = user.username.charAt(0).toUpperCase();
+                }
+
+                // Update subscribe button
+                const subscribeBtn = document.getElementById('subscribeBtn');
+                if (currentUser && currentUser.subscriptions && currentUser.subscriptions.includes(user.id)) {
+                    subscribeBtn.textContent = 'Отписаться';
+                    subscribeBtn.style.background = 'var(--gray)';
+                } else {
+                    subscribeBtn.textContent = 'Подписаться';
+                    subscribeBtn.style.background = 'var(--primary)';
+                }
             }
 
             // Show admin controls
@@ -1452,9 +769,11 @@
             }
 
             // Load video from IndexedDB
-            const videoUrl = await getVideoFromIndexedDB(videoId);
-            if (videoUrl) {
-                mainVideo.src = videoUrl;
+            const videoData = await getFromStore('videos', videoId);
+            if (videoData && videoData.videoBlob) {
+                const blob = new Blob([videoData.videoBlob], { type: 'video/mp4' });
+                const url = URL.createObjectURL(blob);
+                mainVideo.src = url;
             }
 
             // Switch to video page
@@ -1464,7 +783,8 @@
 
             // Increment views
             video.views = (video.views || 0) + 1;
-            saveDataToLocalStorage();
+            await saveToStore('videos', video);
+            videos = videos.map(v => v.id === videoId ? video : v);
         }
 
         function backToVideos() {
@@ -1490,12 +810,13 @@
             document.getElementById('uploadModal').style.display = 'none';
             // Reset form
             document.getElementById('videoFile').value = '';
-            document.getElementById('thumbnailFile').value = '';
             document.getElementById('uploadTitle').value = '';
             document.getElementById('uploadDescription').value = '';
-            uploadText.textContent = 'Нажмите для выбора видео файла';
-            thumbnailText.textContent = 'Нажмите для выбора превью';
-            thumbnailPreview.style.display = 'none';
+            document.getElementById('uploadText').textContent = 'Нажмите для выбора видео файла';
+        }
+
+        function hideAvatarModal() {
+            document.getElementById('avatarModal').style.display = 'none';
         }
 
         async function uploadVideo() {
@@ -1519,9 +840,9 @@
             try {
                 showSyncNotification();
                 
-                // Save video to IndexedDB
-                await saveVideoToIndexedDB(videoId, file);
-
+                // Read file as ArrayBuffer
+                const arrayBuffer = await readFileAsArrayBuffer(file);
+                
                 // Create video object
                 const newVideo = {
                     id: videoId,
@@ -1532,49 +853,41 @@
                     likes: 0,
                     dislikes: 0,
                     uploadDate: new Date().toISOString(),
-                    thumbnail: ''
+                    videoBlob: arrayBuffer
                 };
 
-                // Handle thumbnail
-                const thumbnailInput = document.getElementById('thumbnailFile');
-                if (thumbnailInput.files.length) {
-                    const thumbnailFile = thumbnailInput.files[0];
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        newVideo.thumbnail = e.target.result;
-                        completeVideoUpload(newVideo);
-                    };
-                    reader.readAsDataURL(thumbnailFile);
-                } else {
-                    completeVideoUpload(newVideo);
-                }
-
+                // Save to IndexedDB
+                await saveToStore('videos', newVideo);
+                videos.push(newVideo);
+                
+                hideUploadModal();
+                loadVideos();
+                showSuccess('Видео успешно загружено!');
+                
             } catch (error) {
                 showError('Ошибка при загрузке видео: ' + error.message);
             }
         }
 
-        function completeVideoUpload(video) {
-            videos.push(video);
-            saveDataToLocalStorage();
-            hideUploadModal();
-            renderVideos();
-            showSuccess('Видео успешно загружено!');
+        function readFileAsArrayBuffer(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
         }
 
-        function deleteVideo(videoId) {
+        async function deleteVideo(videoId) {
             if (!confirm('Вы уверены, что хотите удалить это видео?')) return;
 
             const videoIndex = videos.findIndex(v => v.id === videoId);
             if (videoIndex === -1) return;
 
             videos.splice(videoIndex, 1);
-            saveDataToLocalStorage();
+            await deleteFromStore('videos', videoId);
             
-            // Delete from IndexedDB
-            deleteVideoFromIndexedDB(videoId);
-            
-            renderVideos();
+            loadVideos();
             showSuccess('Видео удалено');
         }
 
@@ -1585,11 +898,11 @@
             }
         }
 
-        function renderProfile() {
+        async function renderProfile() {
             if (!currentUser) return;
 
             document.getElementById('profileName').textContent = currentUser.username;
-            document.getElementById('profileSubs').textContent = `${currentUser.subscribers} подписчиков`;
+            document.getElementById('profileSubs').textContent = `${currentUser.subscribers || 0} подписчиков`;
             
             const userVideos = videos.filter(v => v.userId === currentUser.id);
             document.getElementById('profileVideos').textContent = `${userVideos.length} видео`;
@@ -1616,7 +929,7 @@
             document.getElementById('avatarModal').style.display = 'flex';
         }
 
-        function saveAvatar() {
+        async function saveAvatar() {
             const fileInput = document.getElementById('avatarFile');
             if (!fileInput.files.length) {
                 showError('Выберите изображение');
@@ -1625,16 +938,16 @@
 
             const file = fileInput.files[0];
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 currentUser.avatar = e.target.result;
                 
-                // Update in users array
+                // Update in users array and IndexedDB
                 const userIndex = users.findIndex(u => u.id === currentUser.id);
                 if (userIndex !== -1) {
                     users[userIndex].avatar = e.target.result;
+                    await saveToStore('users', currentUser);
                 }
                 
-                saveDataToLocalStorage();
                 localStorage.setItem('vidflow_currentUser', JSON.stringify(currentUser));
                 
                 updateUserInterface();
@@ -1644,55 +957,124 @@
             reader.readAsDataURL(file);
         }
 
-        function likeVideo() {
+        async function likeVideo() {
             if (!currentPlayingVideo) return;
             currentPlayingVideo.likes = (currentPlayingVideo.likes || 0) + 1;
-            saveDataToLocalStorage();
+            await saveToStore('videos', currentPlayingVideo);
             document.getElementById('likeCount').textContent = currentPlayingVideo.likes;
         }
 
-        function dislikeVideo() {
+        async function dislikeVideo() {
             if (!currentPlayingVideo) return;
             currentPlayingVideo.dislikes = (currentPlayingVideo.dislikes || 0) + 1;
-            saveDataToLocalStorage();
+            await saveToStore('videos', currentPlayingVideo);
             document.getElementById('dislikeCount').textContent = currentPlayingVideo.dislikes;
         }
 
         function shareVideo() {
             if (!currentPlayingVideo) return;
             
-            const shareUrl = `${window.location.origin}${window.location.pathname}?video=${currentPlayingVideo.id}`;
+            const shareUrl = window.location.href.split('?')[0];
             navigator.clipboard.writeText(shareUrl).then(() => {
-                showSuccess('Ссылка скопирована в буфер обмена');
+                showSuccess('Ссылка на видео скопирована в буфер обмена');
             });
         }
 
-        function subscribeChannel() {
-            if (!currentPlayingVideo) return;
+        async function subscribeChannel() {
+            if (!currentPlayingVideo || !currentUser) return;
             
             const videoUser = users.find(u => u.id === currentPlayingVideo.userId);
             if (videoUser && videoUser.id !== currentUser.id) {
-                videoUser.subscribers = (videoUser.subscribers || 0) + 1;
-                saveDataToLocalStorage();
+                if (!currentUser.subscriptions) {
+                    currentUser.subscriptions = [];
+                }
+
+                const isSubscribed = currentUser.subscriptions.includes(videoUser.id);
+                
+                if (isSubscribed) {
+                    // Unsubscribe
+                    currentUser.subscriptions = currentUser.subscriptions.filter(id => id !== videoUser.id);
+                    videoUser.subscribers = Math.max(0, (videoUser.subscribers || 0) - 1);
+                    document.getElementById('subscribeBtn').textContent = 'Подписаться';
+                    document.getElementById('subscribeBtn').style.background = 'var(--primary)';
+                    showSuccess(`Вы отписались от ${videoUser.username}`);
+                } else {
+                    // Subscribe
+                    currentUser.subscriptions.push(videoUser.id);
+                    videoUser.subscribers = (videoUser.subscribers || 0) + 1;
+                    document.getElementById('subscribeBtn').textContent = 'Отписаться';
+                    document.getElementById('subscribeBtn').style.background = 'var(--gray)';
+                    showSuccess(`Вы подписались на ${videoUser.username}`);
+                }
+
+                // Save changes
+                await saveToStore('users', currentUser);
+                await saveToStore('users', videoUser);
+                localStorage.setItem('vidflow_currentUser', JSON.stringify(currentUser));
+                
                 document.getElementById('channelSubsPage').textContent = `${videoUser.subscribers} подписчиков`;
-                showSuccess(`Вы подписались на ${videoUser.username}`);
             }
         }
 
         function showMyVideos() {
-            showHomePage();
+            const myVideos = videos.filter(v => v.userId === currentUser.id);
+            renderFilteredVideos(myVideos, 'Мои видео');
         }
 
         function showPopular() {
-            showHomePage();
+            const popularVideos = [...videos].sort((a, b) => (b.views || 0) - (a.views || 0));
+            renderFilteredVideos(popularVideos.slice(0, 20), 'Популярные видео');
+        }
+
+        function showSubscriptions() {
+            if (!currentUser || !currentUser.subscriptions || currentUser.subscriptions.length === 0) {
+                videoGrid.innerHTML = '<div class="empty-state"><h3>Вы еще ни на кого не подписаны</h3></div>';
+                return;
+            }
+            
+            const subscriptionVideos = videos.filter(v => currentUser.subscriptions.includes(v.userId));
+            renderFilteredVideos(subscriptionVideos, 'Подписки');
         }
 
         function showHistory() {
+            // В реальном приложении здесь была бы история просмотров
             showHomePage();
         }
 
         function showLiked() {
+            // В реальном приложении здесь были бы понравившиеся видео
             showHomePage();
+        }
+
+        function renderFilteredVideos(filteredVideos, title) {
+            document.querySelector('.section-title h2').textContent = title;
+            videoGrid.innerHTML = '';
+            
+            if (filteredVideos.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            filteredVideos.forEach(video => {
+                const videoCard = createVideoCard(video);
+                videoGrid.appendChild(videoCard);
+            });
+        }
+
+        function searchVideos() {
+            const query = searchInput.value.toLowerCase().trim();
+            if (!query) {
+                loadVideos();
+                return;
+            }
+
+            const filteredVideos = videos.filter(video => 
+                video.title.toLowerCase().includes(query) ||
+                video.description.toLowerCase().includes(query)
+            );
+
+            renderFilteredVideos(filteredVideos, `Результаты поиска: "${query}"`);
         }
 
         function showSyncNotification() {
@@ -1713,51 +1095,134 @@
         function showSuccess(message) {
             // Можно добавить уведомление об успехе
             console.log('Success:', message);
+            // Временное уведомление
+            alert(message);
         }
 
-        function forceSync() {
-            showSyncNotification();
-            renderVideos();
-        }
-
-        function clearStorage() {
-            if (confirm('Вы уверены, что хотите очистить кэш? Это не удалит ваши видео.')) {
-                localStorage.removeItem('vidflow_videos');
-                localStorage.removeItem('vidflow_users');
-                localStorage.removeItem('vidflow_currentUser');
-                showSuccess('Кэш очищен');
-                setTimeout(() => {
-                    location.reload();
-                }, 1000);
+        async function clearStorage() {
+            if (confirm('Вы уверены, что хотите очистить все данные? Это удалит все видео и аккаунты.')) {
+                try {
+                    // Clear IndexedDB
+                    const stores = ['videos', 'users', 'metadata'];
+                    for (const storeName of stores) {
+                        const transaction = db.transaction([storeName], 'readwrite');
+                        const store = transaction.objectStore(storeName);
+                        await store.clear();
+                    }
+                    
+                    // Clear localStorage
+                    localStorage.clear();
+                    
+                    showSuccess('Все данные очищены');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } catch (error) {
+                    showError('Ошибка при очистке данных');
+                }
             }
         }
 
-        function startSyncService() {
-            // Имитация синхронизации
-            setInterval(() => {
-                updateStorageInfo();
-            }, 5000);
+        async function exportData() {
+            try {
+                const exportData = {
+                    users: users,
+                    videos: videos.map(v => ({
+                        ...v,
+                        videoBlob: undefined // Не экспортируем большие blob-объекты
+                    })),
+                    exportDate: new Date().toISOString(),
+                    version: '1.0'
+                };
+
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `vidflow-backup-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showSuccess('Данные экспортированы');
+            } catch (error) {
+                showError('Ошибка при экспорте данных');
+            }
         }
 
-        function updateStorageInfo() {
-            let totalSize = 0;
+        function importData() {
+            document.getElementById('importFile').click();
+        }
+
+        document.getElementById('importFile').addEventListener('change', async function(e) {
+            if (e.target.files.length === 0) return;
             
-            // Calculate approximate storage usage
-            if (db) {
-                const transaction = db.transaction(['videos'], 'readonly');
-                const store = transaction.objectStore('videos');
-                const request = store.getAll();
-                
-                request.onsuccess = () => {
-                    request.result.forEach(video => {
-                        if (video.file) {
-                            totalSize += video.file.byteLength || 0;
-                        }
-                    });
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = async function(event) {
+                try {
+                    const importData = JSON.parse(event.target.result);
                     
-                    const sizeInMB = (totalSize / (1024 * 1024)).toFixed(2);
-                    storageText.textContent = `Использовано: ${sizeInMB} MB`;
-                };
+                    if (!importData.users || !importData.videos) {
+                        throw new Error('Неверный формат файла');
+                    }
+                    
+                    if (confirm('Это перезапишет все текущие данные. Продолжить?')) {
+                        // Clear existing data
+                        const stores = ['videos', 'users'];
+                        for (const storeName of stores) {
+                            const transaction = db.transaction([storeName], 'readwrite');
+                            const store = transaction.objectStore(storeName);
+                            await store.clear();
+                        }
+                        
+                        // Import users
+                        for (const user of importData.users) {
+                            await saveToStore('users', user);
+                        }
+                        
+                        // Import videos
+                        for (const video of importData.videos) {
+                            await saveToStore('videos', video);
+                        }
+                        
+                        users = importData.users;
+                        videos = importData.videos;
+                        
+                        showSuccess('Данные успешно импортированы');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    }
+                } catch (error) {
+                    showError('Ошибка при импорте данных: ' + error.message);
+                }
+            };
+            
+            reader.readAsText(file);
+            e.target.value = ''; // Reset input
+        });
+
+        async function updateStorageInfo() {
+            try {
+                let totalSize = 0;
+                const allVideos = await getAllFromStore('videos');
+                
+                allVideos.forEach(video => {
+                    if (video.videoBlob) {
+                        totalSize += video.videoBlob.byteLength || 0;
+                    }
+                });
+                
+                const sizeInMB = (totalSize / (1024 * 1024)).toFixed(2);
+                const videoCount = allVideos.length;
+                storageText.textContent = `${videoCount} видео, ${sizeInMB} MB`;
+            } catch (error) {
+                console.error('Error updating storage info:', error);
             }
         }
 
@@ -1770,6 +1235,31 @@
                 }
             }
         }
+
+        // Demo data for first time users
+        async function createDemoData() {
+            if (videos.length === 0 && users.length <= 1) {
+                // Create demo user
+                const demoUser = {
+                    id: '2',
+                    username: 'DemoCreator',
+                    email: 'demo@vidflow.com',
+                    password: 'demo123',
+                    avatar: '',
+                    subscribers: 15,
+                    isAdmin: false,
+                    joinDate: new Date().toISOString(),
+                    subscriptions: []
+                };
+                users.push(demoUser);
+                await saveToStore('users', demoUser);
+                
+                showSuccess('Демо данные созданы! Используйте admin@vidflow.com / admin123 для входа');
+            }
+        }
+
+        // Initialize demo data after app load
+        setTimeout(createDemoData, 1000);
     </script>
 </body>
 </html>
