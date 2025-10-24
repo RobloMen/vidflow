@@ -344,6 +344,19 @@
             z-index: 10;
         }
 
+        .missing-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 0, 0, 0.9);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            z-index: 10;
+        }
+
         .video-card:hover .delete-btn {
             opacity: 1;
         }
@@ -694,6 +707,8 @@
             border-radius: var(--radius);
             width: 90%;
             max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .upload-area {
@@ -725,6 +740,15 @@
             color: var(--gray);
             font-size: 0.9rem;
             margin-top: 0.5rem;
+        }
+
+        .thumbnail-preview {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: var(--radius);
+            margin-top: 10px;
+            display: none;
         }
 
         /* Empty State */
@@ -791,6 +815,22 @@
             margin-top: 10px;
             font-size: 0.8rem;
             color: var(--gray);
+        }
+
+        .reupload-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        .reupload-btn:hover {
+            background: var(--primary-dark);
         }
     </style>
 </head>
@@ -1034,6 +1074,16 @@
             </div>
 
             <div class="form-group">
+                <label style="display: block; margin-bottom: 5px; color: var(--gray);">Превью видео (опционально)</label>
+                <div class="upload-area" id="thumbnailArea" style="padding: 1rem;">
+                    <i class="fas fa-image" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                    <p id="thumbnailText">Нажмите для выбора превью</p>
+                    <img id="thumbnailPreview" class="thumbnail-preview">
+                    <input type="file" id="thumbnailFile" accept="image/*" class="file-input">
+                </div>
+            </div>
+
+            <div class="form-group">
                 <input type="text" id="uploadTitle" placeholder="Название видео">
             </div>
             
@@ -1042,6 +1092,25 @@
             </div>
 
             <button class="auth-submit" onclick="uploadVideo()">Загрузить видео</button>
+        </div>
+    </div>
+
+    <!-- Reupload Modal -->
+    <div class="modal" id="reuploadModal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 1rem;">Файл видео недоступен</h2>
+            <p style="margin-bottom: 1rem; color: var(--gray);">Видеофайл был потерян при перезагрузке браузера. Пожалуйста, загрузите его снова.</p>
+            
+            <div class="upload-area" id="reuploadArea">
+                <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                <p>Выберите видео файл для восстановления</p>
+                <input type="file" id="reuploadFile" accept="video/*" class="file-input">
+            </div>
+
+            <button class="auth-submit" onclick="reuploadVideo()">Восстановить видео</button>
+            <button class="action-btn" onclick="closeReuploadModal()" style="width: 100%; margin-top: 10px;">
+                Отмена
+            </button>
         </div>
     </div>
 
@@ -1067,7 +1136,7 @@
         
         // Хранилище для видеофайлов в памяти (не в localStorage)
         let videoFiles = new Map();
-        let sessionStorage = new Map(); // Для хранения больших файлов
+        let currentReuploadVideoId = null;
 
         // DOM elements
         const authContainer = document.getElementById('authContainer');
@@ -1082,7 +1151,10 @@
         const userAvatar = document.getElementById('userAvatar');
         const userDropdown = document.getElementById('userDropdown');
         const videoFileInput = document.getElementById('videoFile');
+        const thumbnailFileInput = document.getElementById('thumbnailFile');
         const uploadText = document.getElementById('uploadText');
+        const thumbnailText = document.getElementById('thumbnailText');
+        const thumbnailPreview = document.getElementById('thumbnailPreview');
         const adminBadge = document.getElementById('adminBadge');
         const adminControls = document.getElementById('adminControls');
         const syncNotification = document.getElementById('syncNotification');
@@ -1096,6 +1168,7 @@
         const syncIndicator = document.getElementById('syncIndicator');
         const storageInfo = document.getElementById('storageInfo');
         const storageText = document.getElementById('storageText');
+        const reuploadModal = document.getElementById('reuploadModal');
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -1128,6 +1201,25 @@
                         <p style="font-size: 0.8rem; color: var(--gray);">Размер: ${fileSize} ГБ</p>
                         <p style="font-size: 0.8rem; color: var(--gray);">Нажмите для выбора другого файла</p>
                     `;
+                }
+            });
+
+            thumbnailFileInput.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        thumbnailPreview.src = e.target.result;
+                        thumbnailPreview.style.display = 'block';
+                        thumbnailText.innerHTML = `
+                            <i class="fas fa-check-circle" style="color: #4CAF50; font-size: 1rem; margin-bottom: 0.5rem;"></i>
+                            <p>Превью выбрано</p>
+                            <p style="font-size: 0.8rem; color: var(--gray);">Нажмите для выбора другого</p>
+                        `;
+                    };
+                    
+                    reader.readAsDataURL(file);
                 }
             });
 
@@ -1214,8 +1306,7 @@
             try {
                 const videosCount = videos.length;
                 const videoFilesCount = videoFiles.size;
-                const sessionFilesCount = sessionStorage.size;
-                storageText.textContent = `${videosCount} видео (${videoFilesCount + sessionFilesCount} в памяти)`;
+                storageText.textContent = `${videosCount} видео (${videoFilesCount} в памяти)`;
             } catch (e) {
                 storageText.textContent = 'Ошибка расчета';
             }
@@ -1223,10 +1314,12 @@
 
         function uploadVideo() {
             const fileInput = document.getElementById('videoFile');
+            const thumbnailInput = document.getElementById('thumbnailFile');
             const titleInput = document.getElementById('uploadTitle');
             const descriptionInput = document.getElementById('uploadDescription');
             
             const file = fileInput.files[0];
+            const thumbnailFile = thumbnailInput.files[0];
             const title = titleInput.value.trim();
             const description = descriptionInput.value.trim();
             
@@ -1246,42 +1339,20 @@
                 // Создаем Object URL для видео (хранится в памяти браузера)
                 const videoUrl = URL.createObjectURL(file);
                 
-                const video = {
-                    id: Date.now(),
-                    title: title,
-                    description: description,
-                    userId: currentUser.id,
-                    userName: currentUser.name,
-                    userAvatar: currentUser.avatar,
-                    views: 0,
-                    likes: 0,
-                    dislikes: 0,
-                    uploadDate: new Date().toISOString(),
-                    duration: this.getVideoDuration(file),
-                    thumbnail: this.generateThumbnailFromFile(file),
-                    fileSize: file.size,
-                    fileName: file.name,
-                    // Не сохраняем сам файл в localStorage!
-                };
-                
-                // Сохраняем Object URL в памяти сессии
-                sessionStorage.set(video.id, {
-                    url: videoUrl,
-                    file: file
-                });
-                
-                videos.push(video);
-                
-                // Сохраняем только метаданные в localStorage
-                if (!saveVideos()) {
-                    throw new Error('Не удалось сохранить видео');
+                // Обрабатываем превью
+                let thumbnailUrl = null;
+                if (thumbnailFile) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        thumbnailUrl = e.target.result;
+                        completeVideoUpload(videoUrl, file, thumbnailUrl, title, description, true);
+                    };
+                    reader.readAsDataURL(thumbnailFile);
+                } else {
+                    // Генерируем автоматическое превью если пользователь не выбрал
+                    thumbnailUrl = generateThumbnailFromFile(file);
+                    completeVideoUpload(videoUrl, file, thumbnailUrl, title, description, false);
                 }
-                
-                hideUploadProgress();
-                document.getElementById('uploadModal').style.display = 'none';
-                showSyncNotification();
-                loadVideos();
-                showSuccess('Видео успешно загружено!');
                 
             } catch (error) {
                 console.error('Ошибка загрузки видео:', error);
@@ -1290,18 +1361,66 @@
             }
         }
 
+        function completeVideoUpload(videoUrl, file, thumbnailUrl, title, description, hasCustomThumbnail) {
+            const video = {
+                id: Date.now(),
+                title: title,
+                description: description,
+                userId: currentUser.id,
+                userName: currentUser.name,
+                userAvatar: currentUser.avatar,
+                views: 0,
+                likes: 0,
+                dislikes: 0,
+                uploadDate: new Date().toISOString(),
+                duration: getVideoDuration(file),
+                thumbnail: thumbnailUrl,
+                fileSize: file.size,
+                fileName: file.name,
+                hasCustomThumbnail: hasCustomThumbnail
+            };
+            
+            // Сохраняем Object URL в памяти
+            videoFiles.set(video.id, {
+                url: videoUrl,
+                file: file
+            });
+            
+            videos.push(video);
+            
+            // Сохраняем только метаданные в localStorage
+            if (!saveVideos()) {
+                throw new Error('Не удалось сохранить видео');
+            }
+            
+            hideUploadProgress();
+            document.getElementById('uploadModal').style.display = 'none';
+            showSyncNotification();
+            loadVideos();
+            showSuccess('Видео успешно загружено!');
+            
+            // Сбрасываем форму
+            resetUploadForm();
+        }
+
+        function resetUploadForm() {
+            document.getElementById('uploadTitle').value = '';
+            document.getElementById('uploadDescription').value = '';
+            videoFileInput.value = '';
+            thumbnailFileInput.value = '';
+            thumbnailPreview.style.display = 'none';
+            uploadText.innerHTML = 'Нажмите для выбора видео файла';
+            thumbnailText.innerHTML = 'Нажмите для выбора превью';
+        }
+
         function getVideoDuration(file) {
-            // В реальном приложении здесь бы определялась длительность видео
             return '0:00';
         }
 
         function generateThumbnailFromFile(file) {
-            return new Promise((resolve) => {
-                // Создаем простой цветной превью на основе хеша имени файла
-                const colors = ['#ff3c3c', '#3cff3c', '#3c3cff', '#ffff3c', '#ff3cff', '#00ffff', '#ff00ff'];
-                const color = colors[Math.abs(this.hashCode(file.name)) % colors.length];
-                resolve(`data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="280" height="157" viewBox="0 0 280 157"><rect width="280" height="157" fill="${color}"/><text x="140" y="80" font-family="Arial" font-size="14" fill="white" text-anchor="middle">${file.name.substring(0, 20)}</text></svg>`);
-            });
+            const colors = ['#ff3c3c', '#3cff3c', '#3c3cff', '#ffff3c', '#ff3cff', '#00ffff', '#ff00ff'];
+            const color = colors[Math.abs(hashCode(file.name)) % colors.length];
+            return `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="280" height="157" viewBox="0 0 280 157"><rect width="280" height="157" fill="${color}"/></svg>`;
         }
 
         function hashCode(str) {
@@ -1333,15 +1452,13 @@
                 return true;
             } catch (e) {
                 if (e.name === 'QuotaExceededError') {
-                    // Автоматически очищаем старые видео при переполнении
-                    if (videos.length > 5) {
-                        const videosToRemove = videos.length - 5;
+                    if (videos.length > 10) {
+                        const videosToRemove = videos.length - 10;
                         for (let i = 0; i < videosToRemove; i++) {
                             const oldVideo = videos[i];
-                            sessionStorage.delete(oldVideo.id);
                             videoFiles.delete(oldVideo.id);
                         }
-                        videos = videos.slice(-5);
+                        videos = videos.slice(-10);
                         return saveVideos();
                     }
                 }
@@ -1522,10 +1639,7 @@
             }
             
             document.getElementById('uploadModal').style.display = 'flex';
-            document.getElementById('uploadTitle').value = '';
-            document.getElementById('uploadDescription').value = '';
-            videoFileInput.value = '';
-            uploadText.innerHTML = 'Нажмите для выбора видео файла';
+            resetUploadForm();
         }
 
         function loadVideos() {
@@ -1549,14 +1663,16 @@
             videoCard.className = 'video-card';
             videoCard.setAttribute('data-video-id', video.id);
             
-            const hasVideo = sessionStorage.has(video.id) || videoFiles.has(video.id);
+            const hasVideo = videoFiles.has(video.id);
+            const badgeType = hasVideo ? 'session-badge' : 'missing-badge';
+            const badgeText = hasVideo ? 'В памяти' : 'Файл утерян';
             
             videoCard.innerHTML = `
                 <div class="thumbnail">
                     <div class="thumbnail-content">
                         ${video.thumbnail ? `<img src="${video.thumbnail}" alt="${video.title}" style="width: 100%; height: 100%; object-fit: cover;">` : '<i class="fas fa-play-circle" style="font-size: 3rem; color: var(--light); opacity: 0.7;"></i>'}
                     </div>
-                    ${hasVideo ? '<div class="session-badge">В памяти</div>' : ''}
+                    <div class="${badgeType}">${badgeText}</div>
                     ${(isProfile || isAdmin()) ? '<button class="delete-btn" onclick="deleteVideo(event, ' + video.id + ')"><i class="fas fa-trash"></i></button>' : ''}
                 </div>
                 <div class="video-info">
@@ -1572,11 +1688,12 @@
                         <span>•</span>
                         <span>${formatDate(video.uploadDate)}</span>
                     </div>
+                    ${!hasVideo ? '<button class="reupload-btn" onclick="showReuploadModal(' + video.id + ')"><i class="fas fa-redo"></i> Восстановить видео</button>' : ''}
                 </div>
             `;
             
             videoCard.addEventListener('click', function(e) {
-                if (!e.target.closest('.delete-btn')) {
+                if (!e.target.closest('.delete-btn') && !e.target.closest('.reupload-btn')) {
                     playVideo(video.id);
                 }
             });
@@ -1584,15 +1701,55 @@
             return videoCard;
         }
 
+        function showReuploadModal(videoId) {
+            currentReuploadVideoId = videoId;
+            reuploadModal.style.display = 'flex';
+        }
+
+        function closeReuploadModal() {
+            reuploadModal.style.display = 'none';
+            currentReuploadVideoId = null;
+        }
+
+        function reuploadVideo() {
+            const fileInput = document.getElementById('reuploadFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showError('Пожалуйста, выберите видео файл');
+                return;
+            }
+            
+            if (!currentReuploadVideoId) {
+                showError('Ошибка: видео не выбрано');
+                return;
+            }
+            
+            try {
+                const videoUrl = URL.createObjectURL(file);
+                videoFiles.set(currentReuploadVideoId, {
+                    url: videoUrl,
+                    file: file
+                });
+                
+                closeReuploadModal();
+                showSuccess('Видео успешно восстановлено!');
+                loadVideos();
+                
+            } catch (error) {
+                console.error('Ошибка восстановления видео:', error);
+                showError('Ошибка при восстановлении видео: ' + error.message);
+            }
+        }
+
         function playVideo(videoId) {
             const video = videos.find(v => v.id === videoId);
             if (!video) return;
             
-            const sessionData = sessionStorage.get(videoId);
             const fileData = videoFiles.get(videoId);
             
-            if (!sessionData && !fileData) {
-                showError('Видео недоступно в текущей сессии. Пожалуйста, перезагрузите видео.');
+            if (!fileData) {
+                showReuploadModal(videoId);
                 return;
             }
             
@@ -1600,13 +1757,7 @@
             video.views = (video.views || 0) + 1;
             saveVideos();
             
-            // Используем Object URL из памяти
-            if (sessionData) {
-                mainVideo.src = sessionData.url;
-            } else if (fileData) {
-                mainVideo.src = fileData.url;
-            }
-            
+            mainVideo.src = fileData.url;
             mainVideo.load();
             
             document.getElementById('videoTitlePage').textContent = video.title;
@@ -1653,13 +1804,6 @@
             
             const videoIndex = videos.findIndex(v => v.id === videoId);
             if (videoIndex !== -1) {
-                // Очищаем Object URL из памяти
-                const sessionData = sessionStorage.get(videoId);
-                if (sessionData) {
-                    URL.revokeObjectURL(sessionData.url);
-                    sessionStorage.delete(videoId);
-                }
-                
                 const fileData = videoFiles.get(videoId);
                 if (fileData) {
                     URL.revokeObjectURL(fileData.url);
@@ -1713,7 +1857,6 @@
                         alert('Ссылка на видео скопирована в буфер обмена!');
                     });
                 } else {
-                    // Fallback для старых браузеров
                     const textArea = document.createElement('textarea');
                     textArea.value = shareUrl;
                     document.body.appendChild(textArea);
@@ -1851,12 +1994,6 @@
 
         function clearStorage() {
             if (confirm('Очистить все видео из памяти? Метаданные сохранятся.')) {
-                // Очищаем только Object URLs, метаданные остаются
-                sessionStorage.forEach((data, videoId) => {
-                    URL.revokeObjectURL(data.url);
-                });
-                sessionStorage.clear();
-                
                 videoFiles.forEach((data, videoId) => {
                     URL.revokeObjectURL(data.url);
                 });
@@ -1870,9 +2007,6 @@
         }
 
         function cleanupVideoURLs() {
-            sessionStorage.forEach((data, videoId) => {
-                URL.revokeObjectURL(data.url);
-            });
             videoFiles.forEach((data, videoId) => {
                 URL.revokeObjectURL(data.url);
             });
@@ -1918,7 +2052,6 @@
             }
         }
 
-        // Обработка параметров URL
         function handleUrlParams() {
             const urlParams = new URLSearchParams(window.location.search);
             const videoId = urlParams.get('video');
