@@ -578,10 +578,21 @@
             margin-bottom: 1rem;
             cursor: pointer;
             transition: var(--transition);
+            position: relative;
         }
 
         .upload-area:hover {
             border-color: var(--primary);
+        }
+
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
         }
 
         /* Empty State */
@@ -789,10 +800,10 @@
         <div class="modal-content">
             <h2 style="margin-bottom: 1rem;">Загрузить видео</h2>
             
-            <div class="upload-area" onclick="document.getElementById('videoFile').click()" id="uploadArea">
+            <div class="upload-area" id="uploadArea">
                 <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                <p>Нажмите для выбора видео файла</p>
-                <input type="file" id="videoFile" accept="video/*" style="display: none;">
+                <p id="uploadText">Нажмите для выбора видео файла</p>
+                <input type="file" id="videoFile" accept="video/*" class="file-input">
             </div>
 
             <div class="form-group">
@@ -826,7 +837,6 @@
         let videos = JSON.parse(localStorage.getItem('vidflow_videos')) || [];
         let currentUser = JSON.parse(localStorage.getItem('vidflow_current_user')) || null;
         let currentPlayingVideo = null;
-        let selectedVideoFile = null;
 
         // DOM elements
         const authContainer = document.getElementById('authContainer');
@@ -841,6 +851,7 @@
         const userAvatar = document.getElementById('userAvatar');
         const userDropdown = document.getElementById('userDropdown');
         const videoFileInput = document.getElementById('videoFile');
+        const uploadText = document.getElementById('uploadText');
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -856,26 +867,15 @@
                 }
             });
 
-            // Обработчик выбора файла
+            // Обработчик выбора файла видео
             videoFileInput.addEventListener('change', function(e) {
                 if (e.target.files && e.target.files[0]) {
-                    selectedVideoFile = e.target.files[0];
-                    const fileName = selectedVideoFile.name;
-                    
-                    // Обновляем отображение
-                    const uploadArea = document.getElementById('uploadArea');
-                    uploadArea.innerHTML = `
-                        <i class="fas fa-check-circle" style="color: #4CAF50; font-size: 2rem; margin-bottom: 1rem;"></i>
+                    const fileName = e.target.files[0].name;
+                    uploadText.innerHTML = `
+                        <i class="fas fa-check-circle" style="color: #4CAF50; font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
                         <p>Файл "${fileName}" выбран</p>
                         <p style="font-size: 0.8rem; color: var(--gray);">Нажмите для выбора другого файла</p>
-                        <input type="file" id="videoFile" accept="video/*" style="display: none;">
                     `;
-                    
-                    // Добавляем обработчик для нового input
-                    const newInput = uploadArea.querySelector('#videoFile');
-                    newInput.addEventListener('change', function(e) {
-                        setupEventListeners(); // Переустанавливаем обработчики
-                    });
                 }
             });
         }
@@ -1018,23 +1018,14 @@
                 showAuth();
                 return;
             }
-            // Сбрасываем выбранный файл при открытии модального окна
-            selectedVideoFile = null;
-            document.getElementById('uploadModal').style.display = 'flex';
             
-            // Сбрасываем отображение загрузочной области
-            document.getElementById('uploadArea').innerHTML = `
-                <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                <p>Нажмите для выбора видео файла</p>
-                <input type="file" id="videoFile" accept="video/*" style="display: none;">
-            `;
+            document.getElementById('uploadModal').style.display = 'flex';
             
             // Сбрасываем форму
             document.getElementById('uploadTitle').value = '';
             document.getElementById('uploadDescription').value = '';
-            
-            // Переустанавливаем обработчики
-            setupEventListeners();
+            videoFileInput.value = '';
+            uploadText.innerHTML = 'Нажмите для выбора видео файла';
         }
 
         function uploadVideo() {
@@ -1046,19 +1037,21 @@
                 return;
             }
 
-            if (!selectedVideoFile) {
+            if (!videoFileInput.files || !videoFileInput.files[0]) {
                 alert('Выберите видео файл');
                 return;
             }
 
+            const file = videoFileInput.files[0];
+
             // Проверяем размер файла (максимум 100MB)
-            if (selectedVideoFile.size > 100 * 1024 * 1024) {
+            if (file.size > 100 * 1024 * 1024) {
                 alert('Файл слишком большой. Максимальный размер: 100MB');
                 return;
             }
 
             // Создаем Object URL для видео
-            const videoUrl = URL.createObjectURL(selectedVideoFile);
+            const videoUrl = URL.createObjectURL(file);
 
             const video = {
                 id: Date.now(),
@@ -1072,20 +1065,15 @@
                 dislikes: 0,
                 date: new Date().toLocaleDateString('ru-RU'),
                 url: videoUrl,
-                filename: selectedVideoFile.name,
-                size: selectedVideoFile.size
+                filename: file.name,
+                size: file.size
             };
 
             videos.push(video);
             localStorage.setItem('vidflow_videos', JSON.stringify(videos));
 
-            // Reset form
-            document.getElementById('uploadTitle').value = '';
-            document.getElementById('uploadDescription').value = '';
+            // Закрываем модальное окно
             document.getElementById('uploadModal').style.display = 'none';
-            
-            // Сбрасываем выбранный файл
-            selectedVideoFile = null;
 
             loadVideos();
             alert('Видео успешно загружено!');
